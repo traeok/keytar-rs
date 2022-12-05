@@ -1,0 +1,22 @@
+[package]
+name = "keytar-rs"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+napi = { version = "2", features = ["napi4"] }
+napi-derive = "2"
+serde_json = "1.0"
+tokio = { version = "1", features = ["default", "fs"] }
+
+[dependencies.windows]
+version = "0.43.0"
+features = [
+    "Win32_Foundation",
+    "Win32_Security_Credentials",
+] 
+
+[target.'cfg(unix)'.dependencies]
+libsecret = "0.2.0"
