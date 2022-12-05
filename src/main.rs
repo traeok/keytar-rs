@@ -1,5 +1,7 @@
-use napi::{CallContext, Error, JsObject, bindgen_prelude::Array, JsUnknown, JsString};
-use napi_derive::{js_function};
+use napi::{bindgen_prelude::Array, CallContext, Error, JsObject, JsString, JsUnknown};
+use napi_derive::js_function;
+
+mod keytar;
 
 #[js_function(3)]
 fn set_password(ctx: CallContext) -> napi::Result<JsString> {
