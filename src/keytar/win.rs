@@ -9,6 +9,7 @@ pub fn set_password(service: &String, account: &String, password: &mut String) -
   target_bytes.push(0);
   cred.TargetName = PWSTR::from_raw(target_bytes.as_mut_ptr());
   let mut username_bytes: Vec<u16> = account.encode_utf16().collect();
+  username_bytes.push(0);
   cred.UserName = PWSTR::from_raw(username_bytes.as_mut_ptr());
   cred.CredentialBlobSize = password.len() as u32;
   cred.CredentialBlob = password.as_mut_ptr();
@@ -16,9 +17,10 @@ pub fn set_password(service: &String, account: &String, password: &mut String) -
   unsafe { bool::from(CredWriteW(&cred, 0)) }
 }
 
-pub fn get_password(service: String, account: String, password: &mut String) -> bool {
-  let mut cred: *mut *mut CREDENTIALW = std::ptr::null_mut::<*mut CREDENTIALW>();
+pub fn get_password(service: &String, account: &String) -> Result<String, WIN32_ERROR> {
+  let mut cred: *mut CREDENTIALW = std::ptr::null_mut::<CREDENTIALW>();
   let mut target_name: Vec<u16> = format!("{}/{}", service, account).encode_utf16().collect();
+  target_name.push(0);
 
   let read_result: bool;
   unsafe {
@@ -26,7 +28,7 @@ pub fn get_password(service: String, account: String, password: &mut String) -> 
       PCWSTR::from_raw(target_name.as_mut_ptr()),
       CRED_TYPE_GENERIC.0,
       0,
-      cred,
+      &mut cred,
     ));
   }
 
@@ -35,27 +37,20 @@ pub fn get_password(service: String, account: String, password: &mut String) -> 
     unsafe {
       code = GetLastError();
     }
-    if code == ERROR_NOT_FOUND {
-      return true;
-    }
 
-    return false;
+    return Err(code);
   }
 
+  let mut pw_bytes: Vec<u8> = Vec::new();
   unsafe {
-    let size = (*(*cred)).CredentialBlobSize as usize;
-    if password.capacity() < size {
-      password.reserve_exact(size - password.capacity());
-    }
+    let pw_len = (*cred).CredentialBlobSize as usize;
+    pw_bytes.reserve(pw_len);
 
-    std::ptr::copy(password.as_mut_ptr(), (*(*cred)).CredentialBlob, size);
+    CredFree(cred as *const c_void);
+    Ok(String::from(
+      std::str::from_utf8(std::slice::from_raw_parts((*cred).CredentialBlob, pw_len)).unwrap(),
+    ))
   }
-
-  unsafe {
-    CredFree(*cred as *const c_void);
-  }
-
-  true
 }
 
 pub fn delete_password(service: String, account: String) -> bool {
@@ -85,7 +80,7 @@ pub fn delete_password(service: String, account: String) -> bool {
   return true;
 }
 
-pub fn find_password(service: String, password: &mut String) -> bool {
+pub fn find_password(service: String, password: &mut String) -> Result<String, WIN32_ERROR> {
   let mut filter: Vec<u16> = format!("{}*", service).encode_utf16().collect();
 
   let mut count: u32 = 0;
@@ -107,27 +102,20 @@ pub fn find_password(service: String, password: &mut String) -> bool {
       code = GetLastError();
     }
     if code == ERROR_NOT_FOUND {
-      return true;
+      return Ok(String::default());
     }
-
-    return false;
   }
 
   let cred: *const CREDENTIALW;
   unsafe {
     cred = *creds.offset(0);
     let size = (*cred).CredentialBlobSize as usize;
-    if password.capacity() < size {
-      password.reserve_exact(size - password.capacity());
-    }
-    std::ptr::copy(password.as_mut_ptr(), (*cred).CredentialBlob, size);
-  }
-
-  unsafe {
     CredFree(creds as *const c_void);
-  }
 
-  true
+    Ok(String::from(
+      std::str::from_utf8(std::slice::from_raw_parts((*cred).CredentialBlob, size)).unwrap(),
+    ))
+  }
 }
 
 pub fn find_credentials(
@@ -176,13 +164,14 @@ pub fn find_credentials(
       continue;
     }
 
-    let mut password: String = String::new();
+    let password: String;
     unsafe {
-      password.reserve(cred.CredentialBlobSize as usize);
-      std::ptr::copy(
-        password.as_mut_ptr(),
-        cred.CredentialBlob,
-        cred.CredentialBlobSize as usize,
+      password = String::from(
+        std::str::from_utf8(std::slice::from_raw_parts(
+          cred.CredentialBlob,
+          cred.CredentialBlobSize as usize,
+        ))
+        .unwrap(),
       );
     }
 
