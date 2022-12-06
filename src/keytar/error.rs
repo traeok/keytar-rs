@@ -1,9 +1,16 @@
 pub struct Error {
-  code: Option<u32>,
-  details: Option<String>,
+  pub code: Option<u32>,
+  pub details: Option<String>,
 }
 
 impl Error {
+  pub fn from_details(details: &str) -> Self {
+    Error {
+      code: None,
+      details: Some(details.to_string()),
+    }
+  }
+
   pub fn from_win(code: u32) -> Self {
     Error {
       code: Some(code),

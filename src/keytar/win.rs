@@ -86,7 +86,7 @@ pub fn delete_password(service: String, account: String) -> bool {
   return true;
 }
 
-pub fn find_password(service: String, password: &mut String) -> Result<String, Error> {
+pub fn find_password(service: String) -> Result<String, Error> {
   let mut filter: Vec<u16> = format!("{}*", service).encode_utf16().collect();
 
   let mut count: u32 = 0;
