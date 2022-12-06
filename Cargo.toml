@@ -19,7 +19,7 @@ features = [
 version = "0.43.0"
 
 [target.'cfg(unix)'.dependencies]
-libsecret = "0.2.0"
+secret-service = "2.0.2"
 
 [build-dependencies]
 napi-build = "2.0.1"

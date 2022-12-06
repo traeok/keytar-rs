@@ -22,15 +22,10 @@ impl Task for GetPassword {
   type JsValue = JsString;
 
   fn compute(&mut self) -> Result<Self::Output> {
-    let result = keytar::get_password(&self.service, &self.account);
-    if result.is_ok() {
-      return Ok(result.unwrap());
+    match keytar::get_password(&self.service, &self.account) {
+      Ok(pw) => Ok(pw),
+      Err(err) => Err(napi::Error::from_reason(err.to_string())),
     }
-
-    return Err(napi::Error::from_reason(format!(
-      "keytar-rs: Failed to get password: {}",
-      result.unwrap_err().0
-    )));
   }
 
   fn resolve(&mut self, env: Env, output: Self::Output) -> Result<Self::JsValue> {
@@ -48,13 +43,10 @@ impl Task for SetPassword {
   type JsValue = JsBoolean;
 
   fn compute(&mut self) -> Result<Self::Output> {
-    if keytar::set_password(&self.service, &self.account, &mut self.password) {
-      return Ok(true);
+    match keytar::set_password(&self.service, &self.account, &mut self.password) {
+      Ok(result) => Ok(result),
+      Err(err) => Err(napi::Error::from_reason(err.to_string())),
     }
-
-    Err(napi::Error::from_reason(
-      "keytar-rs: unable to set password",
-    ))
   }
 
   fn resolve(&mut self, env: Env, output: Self::Output) -> Result<Self::JsValue> {

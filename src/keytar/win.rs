@@ -2,7 +2,13 @@ use std::ffi::c_void;
 use std::result::Result;
 use windows::{core::*, Win32::Foundation::*, Win32::Security::Credentials::*};
 
-pub fn set_password(service: &String, account: &String, password: &mut String) -> bool {
+use crate::keytar::error::Error;
+
+pub fn set_password(
+  service: &String,
+  account: &String,
+  password: &mut String,
+) -> Result<bool, Error> {
   let mut cred: CREDENTIALW = CREDENTIALW::default();
   cred.Type = CRED_TYPE_GENERIC;
   let mut target_bytes: Vec<u16> = format!("{}/{}", service, account).encode_utf16().collect();
@@ -14,10 +20,10 @@ pub fn set_password(service: &String, account: &String, password: &mut String) -
   cred.CredentialBlobSize = password.len() as u32;
   cred.CredentialBlob = password.as_mut_ptr();
   cred.Persist = CRED_PERSIST_ENTERPRISE;
-  unsafe { bool::from(CredWriteW(&cred, 0)) }
+  unsafe { Ok(bool::from(CredWriteW(&cred, 0))) }
 }
 
-pub fn get_password(service: &String, account: &String) -> Result<String, WIN32_ERROR> {
+pub fn get_password(service: &String, account: &String) -> Result<String, Error> {
   let mut cred: *mut CREDENTIALW = std::ptr::null_mut::<CREDENTIALW>();
   let mut target_name: Vec<u16> = format!("{}/{}", service, account).encode_utf16().collect();
   target_name.push(0);
@@ -38,7 +44,7 @@ pub fn get_password(service: &String, account: &String) -> Result<String, WIN32_
       code = GetLastError();
     }
 
-    return Err(code);
+    return Err(Error::from_win(code.0));
   }
 
   let mut pw_bytes: Vec<u8> = Vec::new();
@@ -80,7 +86,7 @@ pub fn delete_password(service: String, account: String) -> bool {
   return true;
 }
 
-pub fn find_password(service: String, password: &mut String) -> Result<String, WIN32_ERROR> {
+pub fn find_password(service: String, password: &mut String) -> Result<String, Error> {
   let mut filter: Vec<u16> = format!("{}*", service).encode_utf16().collect();
 
   let mut count: u32 = 0;
@@ -104,6 +110,8 @@ pub fn find_password(service: String, password: &mut String) -> Result<String, W
     if code == ERROR_NOT_FOUND {
       return Ok(String::default());
     }
+
+    return Err(Error::from_win(code.0));
   }
 
   let cred: *const CREDENTIALW;
@@ -121,7 +129,7 @@ pub fn find_password(service: String, password: &mut String) -> Result<String, W
 pub fn find_credentials(
   service: String,
   credentials: &mut Vec<(String, String)>,
-) -> Result<bool, WIN32_ERROR> {
+) -> Result<bool, Error> {
   let filter = PCWSTR::from_raw(
     format!("{}*", service)
       .encode_utf16()
@@ -151,7 +159,7 @@ pub fn find_credentials(
       return Ok(false);
     }
 
-    return Err(code);
+    return Err(Error::from_win(code.0));
   }
 
   for i in 0..count {
