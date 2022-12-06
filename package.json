@@ -1,16 +1,37 @@
 {
-  "name": "keytar-rs",
-  "version": "1.0.0",
-  "description": "A keytar replacement written in Rust",
+  "name": "@traeok/keytar-rs",
+  "description": "keytar meets Rust",
   "repository": "https://github.com/traeok/keytar-rs.git",
   "author": "traeok <trae.yelovich@broadcom.com>",
+  "version": "0.0.0",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "napi": {
+    "name": "keytar-rs",
+    "triples": {
+      "additional": [
+        "aarch64-apple-darwin"
+      ]
+    }
+  },
   "license": "MIT",
-  "private": true,
   "devDependencies": {
-    "@napi-rs/cli": "^2.13.0"
+    "@napi-rs/cli": "^2.13.0",
+    "ava": "^4.3.3"
+  },
+  "ava": {
+    "timeout": "3m"
+  },
+  "engines": {
+    "node": ">= 10"
   },
   "scripts": {
-    "build": "napi build --release",
-    "build:debug": "napi build"
-  }
+    "artifacts": "napi artifacts",
+    "build": "napi build --platform --release",
+    "build:debug": "napi build --platform",
+    "prepublishOnly": "napi prepublish -t npm",
+    "test": "ava",
+    "version": "napi version"
+  },
+  "packageManager": "yarn@3.3.0"
 }
