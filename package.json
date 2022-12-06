@@ -1,0 +1,16 @@
+{
+  "name": "keytar-rs",
+  "version": "1.0.0",
+  "description": "A keytar replacement written in Rust",
+  "repository": "https://github.com/traeok/keytar-rs.git",
+  "author": "traeok <trae.yelovich@broadcom.com>",
+  "license": "MIT",
+  "private": true,
+  "devDependencies": {
+    "@napi-rs/cli": "^2.13.0"
+  },
+  "scripts": {
+    "build": "napi build --release",
+    "build:debug": "napi build"
+  }
+}

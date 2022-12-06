@@ -1,1 +1,5 @@
 /target
+index.d.ts
+index.node
+
+node_modules/

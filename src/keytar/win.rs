@@ -2,7 +2,7 @@ use std::ffi::c_void;
 use std::result::Result;
 use windows::{core::*, Win32::Foundation::*, Win32::Security::Credentials::*};
 
-pub fn set_password(service: String, account: String, mut password: String) -> bool {
+pub fn set_password(service: &String, account: &String, password: &mut String) -> bool {
     let mut cred: CREDENTIALW = CREDENTIALW::default();
     cred.Type = CRED_TYPE_GENERIC;
     let mut target_bytes: Vec<u16> = format!("{}/{}", service, account).encode_utf16().collect();
