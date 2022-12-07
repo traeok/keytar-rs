@@ -1,7 +1,7 @@
 import test from "ava";
-import { deletePassword, getPassword, setPassword } from "../index.js";
+import { deletePassword, findCredentials, getPassword, setPassword } from "../index.js";
 
-test.serial("can use get/setPassword with ASCII string", async (t) => {
+test.only("can use get/setPassword with ASCII string", async (t) => {
   const result = await setPassword("TestKeytar", "TestASCII", "ASCII string");
   t.is(result, true);
 
@@ -9,7 +9,7 @@ test.serial("can use get/setPassword with ASCII string", async (t) => {
   t.is(str, "ASCII string");
 });
 
-test.serial("can use get/setPassword with mixed character set", async (t) => {
+test.only("can use get/setPassword with mixed character set", async (t) => {
   const result = await setPassword("TestKeytar", "TestCharSet", "I 💔 ASCII");
   t.is(result, true);
 
@@ -17,7 +17,7 @@ test.serial("can use get/setPassword with mixed character set", async (t) => {
   t.is(str, "I 💔 ASCII");
 });
 
-test.serial("can use get/setPassword with UTF-16 chars", async (t) => {
+test.only("can use get/setPassword with UTF-16 chars", async (t) => {
   const result = await setPassword("TestKeytar", "TestUTF16", "🌞🌙🌟🌴");
   t.is(result, true);
 
@@ -25,12 +25,22 @@ test.serial("can use get/setPassword with UTF-16 chars", async (t) => {
   t.is(str, "🌞🌙🌟🌴");
 });
 
-test.serial("can use get/setPassword with CJK symbols", async (t) => {
-  const result = await setPassword("TestKeytar", "TestCJK", "「こんにちは世界」");
+test.only("can use get/setPassword with CJK symbols", async (t) => {
+  const result = await setPassword(
+    "TestKeytar",
+    "TestCJK",
+    "「こんにちは世界」"
+  );
   t.is(result, true);
 
   const str = await getPassword("TestKeytar", "TestCJK");
   t.is(str, "「こんにちは世界」");
+});
+
+test("findCredentials prints out all credentials in test service", async (t) => {
+  const pws = await findCredentials("TestKeytar");
+  t.is(pws.length, 4);
+  console.log(pws);
 });
 
 test("deletePassword deletes all test credentials", async (t) => {

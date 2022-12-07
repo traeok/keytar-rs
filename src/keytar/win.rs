@@ -130,15 +130,12 @@ pub fn find_password(service: String) -> Result<String, Error> {
 }
 
 pub fn find_credentials(
-  service: String,
+  service: &String,
   credentials: &mut Vec<(String, String)>,
 ) -> Result<bool, Error> {
-  let filter = PCWSTR::from_raw(
-    format!("{}*", service)
-      .encode_utf16()
-      .collect::<Vec<u16>>()
-      .as_mut_ptr(),
-  );
+  let mut filter_bytes = format!("{}*", service).encode_utf16().collect::<Vec<u16>>();
+  filter_bytes.push(0);
+  let filter = PCWSTR::from_raw(filter_bytes.as_mut_ptr());
 
   let mut count: u32 = 0;
   let mut creds: *mut *mut CREDENTIALW = std::ptr::null_mut::<*mut CREDENTIALW>();
