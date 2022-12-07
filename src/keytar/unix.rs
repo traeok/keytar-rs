@@ -93,9 +93,9 @@ pub fn find_credentials(
 
   let items = collection.get_all_items()?;
   for item in items {
-    let label = item.get_label();
+    let label = item.get_label()?;
     if label.contains(service) {
-      let cred = label.split("/");
+      let cred = label.split("/").collect();
       credentials.push((cred[0], cred[1]));
     }
   }
