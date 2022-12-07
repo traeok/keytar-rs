@@ -1,5 +1,11 @@
 import test from "ava";
-import { deletePassword, findCredentials, getPassword, setPassword } from "../index.js";
+import {
+  deletePassword,
+  findCredentials,
+  findPassword,
+  getPassword,
+  setPassword,
+} from "../index.js";
 
 test.only("can use get/setPassword with ASCII string", async (t) => {
   const result = await setPassword("TestKeytar", "TestASCII", "ASCII string");
@@ -41,6 +47,26 @@ test("findCredentials prints out all credentials in test service", async (t) => 
   const pws = await findCredentials("TestKeytar");
   t.is(pws.length, 4);
   console.log(pws);
+});
+
+test("findPassword works for ASCII test", async (t) => {
+  const pw = await findPassword("TestKeytar/TestASCII");
+  t.is(pw, "ASCII string");
+});
+
+test("findPassword works for mixed character set", async (t) => {
+  const pw = await findPassword("TestKeytar/TestCharSet");
+  t.is(pw, "I 💔 ASCII");
+});
+
+test("findPassword works for UTF-16 test", async (t) => {
+  const pw = await findPassword("TestKeytar/TestUTF16");
+  t.is(pw, "🌞🌙🌟🌴");
+});
+
+test("findPassword works for CJK symbols test", async (t) => {
+  const pw = await findPassword("TestKeytar/TestCJK");
+  t.is(pw, "「こんにちは世界」");
 });
 
 test("deletePassword deletes all test credentials", async (t) => {

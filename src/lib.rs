@@ -1,6 +1,6 @@
 use napi::bindgen_prelude::AsyncTask;
 use napi_derive::napi;
-use workers::{DeletePassword, FindCredentials, GetPassword, SetPassword};
+use workers::{DeletePassword, FindCredentials, FindPassword, GetPassword, SetPassword};
 
 mod keytar;
 mod workers;
@@ -13,6 +13,11 @@ fn delete_password(service: String, account: String) -> AsyncTask<DeletePassword
 #[napi]
 fn find_credentials(service: String) -> AsyncTask<FindCredentials> {
   AsyncTask::new(FindCredentials { service })
+}
+
+#[napi]
+fn find_password(service: String) -> AsyncTask<FindPassword> {
+  AsyncTask::new(FindPassword { service })
 }
 
 #[napi]

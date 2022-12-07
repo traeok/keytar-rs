@@ -89,8 +89,9 @@ pub fn delete_password(service: &String, account: &String) -> Result<bool, Error
   Ok(true)
 }
 
-pub fn find_password(service: String) -> Result<String, Error> {
+pub fn find_password(service: &String) -> Result<String, Error> {
   let mut filter: Vec<u16> = format!("{}*", service).encode_utf16().collect();
+  filter.push(0);
 
   let mut count: u32 = 0;
   let mut creds: *mut *mut CREDENTIALW = std::ptr::null_mut::<*mut CREDENTIALW>();
@@ -121,11 +122,12 @@ pub fn find_password(service: String) -> Result<String, Error> {
   unsafe {
     cred = *creds.offset(0);
     let size = (*cred).CredentialBlobSize as usize;
+    let pw = String::from(
+      std::str::from_utf8(std::slice::from_raw_parts((*cred).CredentialBlob, size)).unwrap(),
+    );
     CredFree(creds as *const c_void);
 
-    Ok(String::from(
-      std::str::from_utf8(std::slice::from_raw_parts((*cred).CredentialBlob, size)).unwrap(),
-    ))
+    Ok(pw)
   }
 }
 

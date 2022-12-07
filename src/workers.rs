@@ -1,4 +1,4 @@
-use napi::{bindgen_prelude::Array, Env, Error, JsBoolean, JsString, Result, Task};
+use napi::{Env, Error, JsBoolean, JsString, Result, Task};
 use napi_derive::napi;
 
 use crate::keytar;
@@ -22,6 +22,9 @@ pub struct DeletePassword {
 }
 
 pub struct FindCredentials {
+  pub service: String,
+}
+pub struct FindPassword {
   pub service: String,
 }
 
@@ -68,7 +71,7 @@ impl Task for SetPassword {
     env.get_boolean(output)
   }
 
-  fn reject(&mut self, env: Env, err: Error) -> Result<Self::JsValue> {
+  fn reject(&mut self, env: Env, _err: Error) -> Result<Self::JsValue> {
     env.get_boolean(false)
   }
 }
@@ -89,7 +92,7 @@ impl Task for DeletePassword {
     env.get_boolean(output)
   }
 
-  fn reject(&mut self, env: Env, err: Error) -> Result<Self::JsValue> {
+  fn reject(&mut self, env: Env, _err: Error) -> Result<Self::JsValue> {
     env.get_boolean(false)
   }
 }
@@ -102,12 +105,12 @@ impl Task for FindCredentials {
   fn compute(&mut self) -> Result<Self::Output> {
     let mut credentials: Self::Output = Vec::new();
     match keytar::find_credentials(&self.service, &mut credentials) {
-      Ok(result) => Ok(credentials),
+      Ok(_result) => Ok(credentials),
       Err(err) => Err(napi::Error::from_reason(err.to_string())),
     }
   }
 
-  fn resolve(&mut self, env: Env, output: Self::Output) -> Result<Self::JsValue> {
+  fn resolve(&mut self, _env: Env, output: Self::Output) -> Result<Self::JsValue> {
     let mut creds = Vec::new();
     for cred in output {
       creds.push(Credential {
@@ -119,7 +122,28 @@ impl Task for FindCredentials {
     Ok(creds)
   }
 
-  fn reject(&mut self, env: Env, err: Error) -> Result<Self::JsValue> {
+  fn reject(&mut self, _env: Env, err: Error) -> Result<Self::JsValue> {
+    Err(err)
+  }
+}
+
+#[napi]
+impl Task for FindPassword {
+  type Output = String;
+  type JsValue = JsString;
+
+  fn compute(&mut self) -> Result<Self::Output> {
+    match keytar::find_password(&self.service) {
+      Ok(pw) => Ok(pw),
+      Err(err) => Err(napi::Error::from_reason(err.to_string())),
+    }
+  }
+
+  fn resolve(&mut self, env: Env, output: Self::Output) -> Result<Self::JsValue> {
+    Ok(env.create_string(output.as_str()).unwrap())
+  }
+
+  fn reject(&mut self, _env: Env, err: Error) -> Result<Self::JsValue> {
     Err(err)
   }
 }
