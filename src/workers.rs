@@ -50,8 +50,8 @@ impl Task for GetPassword {
     env.create_string(output.as_str())
   }
 
-  fn reject(&mut self, env: Env, err: Error) -> Result<Self::JsValue> {
-    env.create_string(&err.to_string())
+  fn reject(&mut self, _env: Env, err: Error) -> Result<Self::JsValue> {
+    Err(err)
   }
 }
 
@@ -71,8 +71,8 @@ impl Task for SetPassword {
     env.get_boolean(output)
   }
 
-  fn reject(&mut self, env: Env, _err: Error) -> Result<Self::JsValue> {
-    env.get_boolean(false)
+  fn reject(&mut self, _env: Env, err: Error) -> Result<Self::JsValue> {
+    Err(err)
   }
 }
 
@@ -92,8 +92,8 @@ impl Task for DeletePassword {
     env.get_boolean(output)
   }
 
-  fn reject(&mut self, env: Env, _err: Error) -> Result<Self::JsValue> {
-    env.get_boolean(false)
+  fn reject(&mut self, _env: Env, err: Error) -> Result<Self::JsValue> {
+    Err(err)
   }
 }
 
