@@ -21,7 +21,8 @@ pub fn set_password(
 
   let collection = ss.get_default_collection()?;
   let mut properties = HashMap::new();
-  properties.insert(service.as_str(), account.as_str());
+  properties.insert("service", service.as_str());
+  properties.insert("account", account.as_str());
   match collection.create_item(
     format!("{}/{}", service, account).as_str(),
     properties,
@@ -36,9 +37,8 @@ pub fn set_password(
 
 pub fn get_password(service: &String, account: &String) -> Result<String, Error> {
   let ss = SecretService::new(EncryptionType::Dh)?;
-  let collection = ss.get_default_collection()?;
 
-  match ss.search_items(vec![(service, account)]) {
+  match ss.search_items(vec![("service", service), ("account", account)]) {
     Ok(item) => match item.get(0) {
       Some(it) => {
         let bytes = it.get_secret().unwrap();
@@ -53,16 +53,16 @@ pub fn get_password(service: &String, account: &String) -> Result<String, Error>
 }
 
 // TODO: replace function stubs
-pub fn find_password(service: String) -> Result<String, Error> {
+pub fn find_password(service: &String) -> Result<String, Error> {
   Ok(String::default())
 }
 
-pub fn delete_password(service: String, account: String) -> bool {
-  false
+pub fn delete_password(service: &String, account: &String) -> Result<bool, Error> {
+  Ok(false)
 }
 
 pub fn find_credentials(
-  service: String,
+  service: &String,
   credentials: &mut Vec<(String, String)>,
 ) -> Result<bool, Error> {
   Ok(false)
