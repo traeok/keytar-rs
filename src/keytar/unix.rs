@@ -53,18 +53,20 @@ pub fn get_password(service: &String, account: &String) -> Result<String, Error>
 }
 
 pub fn find_password(service: &String) -> Result<String, Error> {
-  match ss.search_items(vec![("service", service), ("account", account)]) {
-    Ok(item) => match item.get(0) {
-      Some(it) => {
-        let bytes = it.get_secret().unwrap();
-        return Ok(String::from_utf8(bytes).unwrap());
-      }
-      None => Err(Error::from_details(
-        "No items found with the specified attributes",
-      )),
-    },
-    Err(err) => Err(Error::from(err)),
+  let ss = SecretService::new(EncryptionType::Dh)?;
+  let collection = ss.get_default_collection()?;
+
+  let items = collection.get_all_items()?;
+  for item in items {
+    let label = item.get_label()?;
+    if label.contains(service) {
+      let bytes = item.get_secret().unwrap();
+      let pw = String::from_utf8(bytes).unwrap();
+      return Ok(pw);
+    }
   }
+
+  Ok(String::default())
 }
 
 pub fn delete_password(service: &String, account: &String) -> Result<bool, Error> {
@@ -73,7 +75,7 @@ pub fn delete_password(service: &String, account: &String) -> Result<bool, Error
   match ss.search_items(vec![("service", service), ("account", account)]) {
     Ok(item) => match item.get(0) {
       Some(it) => {
-        it.delete.unwrap();
+        it.delete().unwrap();
         return Ok(true);
       }
       None => Err(Error::from_details(
@@ -95,10 +97,16 @@ pub fn find_credentials(
   for item in items {
     let label = item.get_label()?;
     if label.contains(service) {
-      let cred = label.split("/").collect();
-      credentials.push((cred[0], cred[1]));
+      let cred: Vec<&str> = label.split("/").collect();
+      let bytes = item.get_secret().unwrap();
+      let pw = String::from_utf8(bytes).unwrap();
+      if cred.len() < 1 {
+        credentials.push((String::default(), pw));
+      } else {
+        credentials.push((cred[1].to_string(), pw));
+      }
     }
   }
 
-  Ok(true)
+  Ok(!credentials.is_empty())
 }
