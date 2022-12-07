@@ -8,6 +8,6 @@ export interface Credential {
   password: string
 }
 export function deletePassword(service: string, account: string): Promise<boolean>
-export function findCredentials(service: string): Promise<unknown[]>
+export function findCredentials(service: string): Promise<Array<Credential>>
 export function getPassword(service: string, account: string): Promise<string>
 export function setPassword(service: string, account: string, password: string): Promise<boolean>

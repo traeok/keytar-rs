@@ -97,7 +97,7 @@ impl Task for DeletePassword {
 #[napi]
 impl Task for FindCredentials {
   type Output = Vec<(String, String)>;
-  type JsValue = Array;
+  type JsValue = Vec<Credential>;
 
   fn compute(&mut self) -> Result<Self::Output> {
     let mut credentials: Self::Output = Vec::new();
@@ -108,17 +108,15 @@ impl Task for FindCredentials {
   }
 
   fn resolve(&mut self, env: Env, output: Self::Output) -> Result<Self::JsValue> {
-    let mut arr = env.create_array(0).unwrap();
+    let mut creds = Vec::new();
     for cred in output {
-      arr
-        .insert(Credential {
-          username: cred.0,
-          password: cred.1,
-        })
-        .unwrap();
+      creds.push(Credential {
+        username: cred.0,
+        password: cred.1,
+      })
     }
 
-    Ok(arr)
+    Ok(creds)
   }
 
   fn reject(&mut self, env: Env, err: Error) -> Result<Self::JsValue> {
