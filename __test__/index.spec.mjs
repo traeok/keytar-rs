@@ -7,7 +7,7 @@ import {
   setPassword,
 } from "../index.js";
 
-test.only("can use get/setPassword with ASCII string", async (t) => {
+test.only("get/setPassword with ASCII string", async (t) => {
   const result = await setPassword("TestKeytar", "TestASCII", "ASCII string");
   t.is(result, true);
 
@@ -15,7 +15,7 @@ test.only("can use get/setPassword with ASCII string", async (t) => {
   t.is(str, "ASCII string");
 });
 
-test.only("can use get/setPassword with mixed character set", async (t) => {
+test.only("get/setPassword with mixed character set", async (t) => {
   const result = await setPassword("TestKeytar", "TestCharSet", "I 💔 ASCII");
   t.is(result, true);
 
@@ -23,7 +23,7 @@ test.only("can use get/setPassword with mixed character set", async (t) => {
   t.is(str, "I 💔 ASCII");
 });
 
-test.only("can use get/setPassword with UTF-16 chars", async (t) => {
+test.only("get/setPassword with UTF-16 chars", async (t) => {
   const result = await setPassword("TestKeytar", "TestUTF16", "🌞🌙🌟🌴");
   t.is(result, true);
 
@@ -31,7 +31,7 @@ test.only("can use get/setPassword with UTF-16 chars", async (t) => {
   t.is(str, "🌞🌙🌟🌴");
 });
 
-test.only("can use get/setPassword with CJK symbols", async (t) => {
+test.only("get/setPassword with CJK symbols", async (t) => {
   const result = await setPassword(
     "TestKeytar",
     "TestCJK",
@@ -43,28 +43,28 @@ test.only("can use get/setPassword with CJK symbols", async (t) => {
   t.is(str, "「こんにちは世界」");
 });
 
-test("findCredentials prints out all credentials in test service", async (t) => {
+test("findCredentials prints all credentials in test service", async (t) => {
   const pws = await findCredentials("TestKeytar");
   t.is(pws.length, 4);
   console.log(pws);
 });
 
-test("findPassword works for ASCII test", async (t) => {
+test("findPassword for ASCII string", async (t) => {
   const pw = await findPassword("TestKeytar/TestASCII");
   t.is(pw, "ASCII string");
 });
 
-test("findPassword works for mixed character set", async (t) => {
+test("findPassword for mixed character set", async (t) => {
   const pw = await findPassword("TestKeytar/TestCharSet");
   t.is(pw, "I 💔 ASCII");
 });
 
-test("findPassword works for UTF-16 test", async (t) => {
+test("findPassword for UTF-16", async (t) => {
   const pw = await findPassword("TestKeytar/TestUTF16");
   t.is(pw, "🌞🌙🌟🌴");
 });
 
-test("findPassword works for CJK symbols test", async (t) => {
+test("findPassword for CJK symbols", async (t) => {
   const pw = await findPassword("TestKeytar/TestCJK");
   t.is(pw, "「こんにちは世界」");
 });
