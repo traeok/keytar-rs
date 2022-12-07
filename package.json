@@ -12,7 +12,8 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@napi-rs/cli": "^2.13.0"
+    "@napi-rs/cli": "^2.13.0",
+    "keytar": "^7.9.0"
   },
   "napi": {
     "name": "keytar"
