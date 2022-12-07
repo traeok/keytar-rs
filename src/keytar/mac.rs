@@ -59,6 +59,7 @@ pub fn find_credentials(
 ) -> Result<bool, Error> {
   let search_builder = ItemSearchOptions::new()
     .label(service.as_str())
+    .load_attributes(true)
     .load_refs(true);
 
   let results = search_builder.search()?;
