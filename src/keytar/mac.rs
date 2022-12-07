@@ -55,7 +55,7 @@ pub fn find_password(service: &String) -> Result<String, Error> {
       let pw_str = String::from_utf8(pw.to_owned())?;
       return Ok(pw_str);
     }
-    Err(err) => Err(err),
+    Err(err) => Err(Error::from(err)),
   }
 }
 
