@@ -236,7 +236,8 @@ if (!nativeBinding) {
   throw new Error(`Failed to load native binding`)
 }
 
-const { setPassword, getPassword } = nativeBinding
+const { deletePassword, setPassword, getPassword } = nativeBinding
 
+module.exports.deletePassword = deletePassword
 module.exports.setPassword = setPassword
 module.exports.getPassword = getPassword

@@ -16,6 +16,11 @@ pub struct GetPassword {
   pub account: String,
 }
 
+pub struct DeletePassword {
+  pub service: String,
+  pub account: String,
+}
+
 #[napi]
 impl Task for GetPassword {
   type Output = String;
@@ -44,6 +49,27 @@ impl Task for SetPassword {
 
   fn compute(&mut self) -> Result<Self::Output> {
     match keytar::set_password(&self.service, &self.account, &mut self.password) {
+      Ok(result) => Ok(result),
+      Err(err) => Err(napi::Error::from_reason(err.to_string())),
+    }
+  }
+
+  fn resolve(&mut self, env: Env, output: Self::Output) -> Result<Self::JsValue> {
+    env.get_boolean(output)
+  }
+
+  fn reject(&mut self, env: Env, err: Error) -> Result<Self::JsValue> {
+    env.get_boolean(false)
+  }
+}
+
+#[napi]
+impl Task for DeletePassword {
+  type Output = bool;
+  type JsValue = JsBoolean;
+
+  fn compute(&mut self) -> Result<Self::Output> {
+    match keytar::delete_password(&self.service, &self.account) {
       Ok(result) => Ok(result),
       Err(err) => Err(napi::Error::from_reason(err.to_string())),
     }

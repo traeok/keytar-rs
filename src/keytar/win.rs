@@ -59,8 +59,9 @@ pub fn get_password(service: &String, account: &String) -> Result<String, Error>
   }
 }
 
-pub fn delete_password(service: String, account: String) -> bool {
+pub fn delete_password(service: &String, account: &String) -> Result<bool, Error> {
   let mut target_name: Vec<u16> = format!("{}/{}", service, account).encode_utf16().collect();
+  target_name.push(0);
 
   let delete_result: bool;
   unsafe {
@@ -77,13 +78,15 @@ pub fn delete_password(service: String, account: String) -> bool {
       code = GetLastError();
     }
     if code == ERROR_NOT_FOUND {
-      return true;
+      // If we are trying to delete a credential that doesn't exist,
+      // we didn't actually delete the password
+      return Ok(false);
     }
 
-    return false;
+    return Err(Error::from_win(code.0));
   }
 
-  return true;
+  Ok(true)
 }
 
 pub fn find_password(service: String) -> Result<String, Error> {
