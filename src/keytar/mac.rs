@@ -3,9 +3,7 @@ use crate::keytar::error::Error;
 use security_framework::item::ItemSearchOptions;
 use security_framework::{
   os::macos::passwords::find_generic_password,
-  passwords::{
-    delete_generic_password, find_generic_password, get_generic_password, set_generic_password,
-  },
+  passwords::{delete_generic_password, get_generic_password, set_generic_password},
 };
 
 impl From<security_framework::base::Error> for Error {
@@ -54,7 +52,7 @@ pub fn find_password(service: &String) -> Result<String, Error> {
 
   match find_generic_password(None, cred_attrs[0], cred_attrs[1]) {
     Ok((pw, item)) => {
-      let pw_str = String::from_utf8(pw.as_ref())?;
+      let pw_str = String::from_utf8(pw.to_owned())?;
       return Ok(pw_str);
     }
     Err(err) => Err(err),
