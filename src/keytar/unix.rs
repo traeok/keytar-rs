@@ -17,7 +17,7 @@ pub fn set_password(
   account: &String,
   password: &mut String,
 ) -> Result<bool, Error> {
-  let ss = SecretService::new(EncryptionType::Dh).unwrap();
+  let ss = SecretService::new(EncryptionType::Dh)?;
 
   let collection = ss.get_default_collection()?;
   let mut properties = HashMap::new();
@@ -52,18 +52,53 @@ pub fn get_password(service: &String, account: &String) -> Result<String, Error>
   }
 }
 
-// TODO: replace function stubs
 pub fn find_password(service: &String) -> Result<String, Error> {
-  Ok(String::default())
+  match ss.search_items(vec![("service", service), ("account", account)]) {
+    Ok(item) => match item.get(0) {
+      Some(it) => {
+        let bytes = it.get_secret().unwrap();
+        return Ok(String::from_utf8(bytes).unwrap());
+      }
+      None => Err(Error::from_details(
+        "No items found with the specified attributes",
+      )),
+    },
+    Err(err) => Err(Error::from(err)),
+  }
 }
 
 pub fn delete_password(service: &String, account: &String) -> Result<bool, Error> {
-  Ok(false)
+  let ss = SecretService::new(EncryptionType::Dh)?;
+
+  match ss.search_items(vec![("service", service), ("account", account)]) {
+    Ok(item) => match item.get(0) {
+      Some(it) => {
+        it.delete.unwrap();
+        return Ok(true);
+      }
+      None => Err(Error::from_details(
+        "No items found with the specified attributes",
+      )),
+    },
+    Err(err) => Err(Error::from(err)),
+  }
 }
 
 pub fn find_credentials(
   service: &String,
   credentials: &mut Vec<(String, String)>,
 ) -> Result<bool, Error> {
-  Ok(false)
+  let ss = SecretService::new(EncryptionType::Dh)?;
+  let collection = ss.get_default_collection()?;
+
+  let items = collection.get_all_items()?;
+  for item in items {
+    let label = item.get_label();
+    if label.contains(service) {
+      let cred = label.split("/");
+      credentials.push((cred[0], cred[1]));
+    }
+  }
+
+  Ok(true)
 }
