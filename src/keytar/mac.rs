@@ -1,8 +1,11 @@
 extern crate security_framework;
 use crate::keytar::error::Error;
 use security_framework::item::ItemSearchOptions;
-use security_framework::passwords::{
-  delete_generic_password, find_generic_password, get_generic_password, set_generic_password,
+use security_framework::{
+  os::macos::passwords::find_generic_password,
+  passwords::{
+    delete_generic_password, find_generic_password, get_generic_password, set_generic_password,
+  },
 };
 
 impl From<security_framework::base::Error> for Error {
@@ -44,9 +47,9 @@ pub fn get_password(service: &String, account: &String) -> Result<String, Error>
 pub fn find_password(service: &String) -> Result<String, Error> {
   let cred_attrs: Vec<&str> = service.split("/").collect();
   if cred_attrs.len() < 2 {
-    Err(Error::from_details(
+    return Err(Error::from_details(
       "Improper service string syntax for find_password",
-    ))
+    ));
   }
 
   match find_generic_password(None, cred_attrs[0], cred_attrs[1]) {
