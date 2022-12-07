@@ -1,7 +1,7 @@
 extern crate security_framework;
 use crate::keytar::error::Error;
-use security_framework::item::ItemSearchOptions;
 use security_framework::{
+  item::{ItemClass, ItemSearchOptions},
   os::macos::passwords::find_generic_password,
   passwords::{delete_generic_password, get_generic_password, set_generic_password},
 };
@@ -70,13 +70,22 @@ pub fn find_credentials(
   service: &String,
   credentials: &mut Vec<(String, String)>,
 ) -> Result<bool, Error> {
-  // let search_builder = ItemSearchOptions::new()
-  //   .label(service.as_str())
-  //   .load_attributes(true)
-  //   .load_refs(true);
+  let search_results = ItemSearchOptions::new()
+    .class(ItemClass::generic_password())
+    .label(service.as_str())
+    .limit(128)
+    .load_attributes(true)
+    .load_data(true)
+    .load_refs(true)
+    .search()
+    .unwrap();
 
-  // let results = search_builder.search()?;
-
-  // TODO: get username and populate credentials
-  Ok(false)
+  for result in search_results {
+    let result_map = result.simplify_dict().unwrap();
+    credentials.push((
+      result_map.get("acct").unwrap().to_string(),
+      result_map.get("v_Data").unwrap().to_string(),
+    ))
+  }
+  Ok(!credentials.is_empty())
 }
