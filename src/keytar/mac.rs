@@ -70,12 +70,12 @@ pub fn find_credentials(
   service: &String,
   credentials: &mut Vec<(String, String)>,
 ) -> Result<bool, Error> {
-  let search_builder = ItemSearchOptions::new()
-    .label(service.as_str())
-    .load_attributes(true)
-    .load_refs(true);
+  // let search_builder = ItemSearchOptions::new()
+  //   .label(service.as_str())
+  //   .load_attributes(true)
+  //   .load_refs(true);
 
-  let results = search_builder.search()?;
+  // let results = search_builder.search()?;
 
   // TODO: get username and populate credentials
   Ok(false)
