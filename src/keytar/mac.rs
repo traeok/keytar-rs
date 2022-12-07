@@ -41,7 +41,10 @@ pub fn find_password(service: &String) -> Result<String, Error> {
   }
 
   match find_generic_password(None, cred_attrs[0], cred_attrs[1]) {
-    Ok((pw, item)) => Ok(String::from_utf8(pw.as_ref())?),
+    Ok((pw, item)) => {
+      let pw_str = String::from_utf8(pw.as_ref())?;
+      return Ok(pw_str);
+    }
     Err(err) => Err(err),
   }
 }
