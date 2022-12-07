@@ -18,7 +18,10 @@ features = [
 ]
 version = "0.43.0"
 
-[target.'cfg(unix)'.dependencies]
+[target.'cfg(target_os = "macos")'.dependencies]
+security-framework = "2.7.0"
+
+[target.'cfg(target_os = "linux")'.dependencies]
 secret-service = "2.0.2"
 
 [build-dependencies]
