@@ -412,6 +412,7 @@ dependencies = [
 name = "keytar-rs"
 version = "0.1.0"
 dependencies = [
+ "byteorder",
  "keyring",
  "napi",
  "napi-build",

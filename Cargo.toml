@@ -13,5 +13,8 @@ keyring = "1"
 napi = "2"
 napi-derive = "2"
 
+[target.'cfg(target_os = "windows")'.dependencies]
+byteorder = "1"
+
 [build-dependencies]
 napi-build = "1"
