@@ -4,32 +4,12 @@ pub struct Error {
 }
 
 impl Error {
+  // not actually dead: only used on certain platforms
+  #[allow(dead_code)]
   pub fn from_details(details: &str) -> Self {
     Error {
       code: None,
       details: Some(details.to_string()),
-    }
-  }
-
-  pub fn from_win(code: u32) -> Self {
-    Error {
-      code: Some(code),
-      details: None,
-    }
-  }
-
-  pub fn from_unix(err: &dyn std::error::Error) -> Self {
-    Error {
-      code: None,
-      details: Some(err.to_string()),
-    }
-  }
-
-  // TODO: update as needed
-  pub fn from_mac(err: &dyn std::error::Error) -> Self {
-    Error {
-      code: None,
-      details: Some(err.to_string()),
     }
   }
 }

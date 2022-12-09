@@ -100,7 +100,7 @@ pub fn find_credentials(
       let cred: Vec<&str> = label.split("/").collect();
       let bytes = item.get_secret().unwrap();
       let pw = String::from_utf8(bytes).unwrap();
-      if cred.len() < 1 {
+      if cred.is_empty() {
         credentials.push((String::default(), pw));
       } else {
         credentials.push((cred[1].to_string(), pw));

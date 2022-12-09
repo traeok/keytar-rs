@@ -1,7 +1,7 @@
 extern crate security_framework;
 use crate::keytar::error::Error;
 use security_framework::{
-  item::{ItemClass, ItemSearchOptions},
+  item::{ItemClass, ItemSearchOptions, Limit},
   os::macos::passwords::find_generic_password,
   passwords::{delete_generic_password, get_generic_password, set_generic_password},
 };
@@ -73,7 +73,7 @@ pub fn find_credentials(
   let search_results = ItemSearchOptions::new()
     .class(ItemClass::generic_password())
     .label(service.as_str())
-    .limit(128)
+    .limit(Limit::All)
     .load_attributes(true)
     .load_data(true)
     .load_refs(true)

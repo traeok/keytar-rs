@@ -4,6 +4,15 @@ use windows::{core::*, Win32::Foundation::*, Win32::Security::Credentials::*};
 
 use crate::keytar::error::Error;
 
+impl From<WIN32_ERROR> for Error {
+  fn from(error: WIN32_ERROR) -> Self {
+    Error {
+      code: Some(error.0),
+      details: Some(error.to_hresult().message().to_string()),
+    }
+  }
+}
+
 pub fn set_password(
   service: &String,
   account: &String,
@@ -44,7 +53,7 @@ pub fn get_password(service: &String, account: &String) -> Result<String, Error>
       code = GetLastError();
     }
 
-    return Err(Error::from_win(code.0));
+    return Err(Error::from(code));
   }
 
   let mut pw_bytes: Vec<u8> = Vec::new();
@@ -52,10 +61,11 @@ pub fn get_password(service: &String, account: &String) -> Result<String, Error>
     let pw_len = (*cred).CredentialBlobSize as usize;
     pw_bytes.reserve(pw_len);
 
-    CredFree(cred as *const c_void);
-    Ok(String::from(
+    let pw_str = String::from(
       std::str::from_utf8(std::slice::from_raw_parts((*cred).CredentialBlob, pw_len)).unwrap(),
-    ))
+    );
+    CredFree(cred as *const c_void);
+    Ok(pw_str)
   }
 }
 
@@ -83,7 +93,7 @@ pub fn delete_password(service: &String, account: &String) -> Result<bool, Error
       return Ok(false);
     }
 
-    return Err(Error::from_win(code.0));
+    return Err(Error::from(code));
   }
 
   Ok(true)
@@ -115,7 +125,7 @@ pub fn find_password(service: &String) -> Result<String, Error> {
       return Ok(String::default());
     }
 
-    return Err(Error::from_win(code.0));
+    return Err(Error::from(code));
   }
 
   let cred: *const CREDENTIALW;
@@ -161,7 +171,7 @@ pub fn find_credentials(
       return Ok(false);
     }
 
-    return Err(Error::from_win(code.0));
+    return Err(Error::from(code));
   }
 
   for i in 0..count {
