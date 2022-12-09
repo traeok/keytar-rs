@@ -3,4 +3,4 @@
 linker = "s390x-linux-gnu-gcc"
 
 [target.aarch64-unknown-linux-musl]
-linker = "aarch64-linux-gnu-gcc"
+linker = "aarch64-linux-musl-gcc"
