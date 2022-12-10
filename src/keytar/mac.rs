@@ -73,7 +73,7 @@ pub fn find_credentials(
   let search_results = ItemSearchOptions::new()
     .class(ItemClass::generic_password())
     .label(service.as_str())
-    .limit(Limit::All)
+    .limit(i32::MAX as i64)
     .load_attributes(true)
     .load_data(true)
     .load_refs(true)
