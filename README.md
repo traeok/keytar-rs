@@ -91,15 +91,12 @@ keytar-rs is a native Node.js module for accessing and managing OS credential st
     <tr>
         <td><b>FreeBSD</b></td>
         <td>x64</td>
-        <td>✓</td>
-        <td>✓</td>
-        <td>✓</td>
-        <td>✓</td>
+        <td colspan="4">⌛ <i>resolving some issues</i></td>
     </tr>
     <tr>
         <td><i>zLinux</i></td>
         <td><i>s390x</i></td>
-        <td colspan="4"><i>Not yet implemented</i></td>
+        <td colspan="4"><i>💭 Not yet implemented</i></td>
     </tr>
 </table>
 
@@ -112,12 +109,18 @@ keytar-rs supports the following operations within credential storage:
 - [x] **Find all credentials** with matching attributes 
 - [x] **Find a password** with matching attributes
 
-## Usage
+Some benefits to using keytar-rs:
+
+- [x] **Cross-platform support** makes for straight-forward secrets management
+- [x] **Existing OS credentials are supported** out-of-the-box
+- [x] **Avoids heap allocation** - memory allocation only performed as needed within OS-specific APIs
+
+## Node API usage
 
 ### deletePassword
 
 ```ts
-function deletePassword(service: string, account: string, password: string) -> Promise<bool>
+function deletePassword(service: string, account: string) -> Promise<boolean>
 ```
 
 ### findCredentials
@@ -146,7 +149,7 @@ function getPassword(service: string, account: string) -> Promise<string>
 ### setPassword
 
 ```ts
-function setPassword(service: string, account: string, password: string) -> Promise<bool>
+function setPassword(service: string, account: string, password: string) -> Promise<boolean>
 ```
 
 *Docs coming soon!*
