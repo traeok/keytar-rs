@@ -30,7 +30,7 @@ pub struct FindPassword {
 
 #[napi(object)]
 pub struct Credential {
-  pub username: String,
+  pub account: String,
   pub password: String,
 }
 
@@ -114,7 +114,7 @@ impl Task for FindCredentials {
     let mut creds = Vec::new();
     for cred in output {
       creds.push(Credential {
-        username: cred.0,
+        account: cred.0,
         password: cred.1,
       })
     }

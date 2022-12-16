@@ -43,10 +43,12 @@ test.only("get/setPassword with CJK symbols", async (t) => {
   t.is(str, "「こんにちは世界」");
 });
 
-test("findCredentials prints all credentials in test service", async (t) => {
+test("findCredentials prints credentials in test service and verifies member names", async (t) => {
   const pws = await findCredentials("TestKeytar");
   t.is(pws.length, 4);
   console.log(pws);
+  t.is(pws[0].hasOwnProperty("account"), true);
+  t.is(pws[0].hasOwnProperty("password"), true);
 });
 
 test("findPassword for ASCII string", async (t) => {
