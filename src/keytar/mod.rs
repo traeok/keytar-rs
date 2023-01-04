@@ -8,6 +8,7 @@ cfg_if::cfg_if! {
         pub mod mac;
         pub use mac::{delete_password, find_credentials, find_password, get_password, set_password};
     } else if #[cfg(any(target_os = "freebsd", target_os = "linux"))] {
+        pub mod headless_unix;
         pub mod unix;
         pub use unix::{delete_password, find_credentials, find_password, get_password, set_password};
     }

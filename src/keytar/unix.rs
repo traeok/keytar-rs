@@ -1,5 +1,5 @@
 extern crate secret_service;
-use crate::keytar::error::Error;
+use crate::keytar::{headless_unix, error::Error};
 use secret_service::{EncryptionType, SecretService};
 use std::collections::HashMap;
 
@@ -17,6 +17,9 @@ pub fn set_password(
   account: &String,
   password: &mut String,
 ) -> Result<bool, Error> {
+  if option_env!("KEYTAR_RS_HEADLESS").is_some() {
+    return headless_unix::set_password(service, account, password);
+  }
   let ss = SecretService::new(EncryptionType::Dh)?;
 
   let collection = ss.get_default_collection()?;
@@ -36,6 +39,9 @@ pub fn set_password(
 }
 
 pub fn get_password(service: &String, account: &String) -> Result<String, Error> {
+  if option_env!("KEYTAR_RS_HEADLESS").is_some() {
+    return headless_unix::get_password(service, account);
+  }
   let ss = SecretService::new(EncryptionType::Dh)?;
 
   match ss.search_items(vec![("service", service), ("account", account)]) {
@@ -53,6 +59,9 @@ pub fn get_password(service: &String, account: &String) -> Result<String, Error>
 }
 
 pub fn find_password(service: &String) -> Result<String, Error> {
+  if option_env!("KEYTAR_RS_HEADLESS").is_some() {
+    return headless_unix::find_password(service);
+  }
   let ss = SecretService::new(EncryptionType::Dh)?;
   let collection = ss.get_default_collection()?;
 
@@ -70,6 +79,9 @@ pub fn find_password(service: &String) -> Result<String, Error> {
 }
 
 pub fn delete_password(service: &String, account: &String) -> Result<bool, Error> {
+  if option_env!("KEYTAR_RS_HEADLESS").is_some() {
+    return headless_unix::delete_password(service, account);
+  }
   let ss = SecretService::new(EncryptionType::Dh)?;
 
   match ss.search_items(vec![("service", service), ("account", account)]) {
@@ -90,6 +102,9 @@ pub fn find_credentials(
   service: &String,
   credentials: &mut Vec<(String, String)>,
 ) -> Result<bool, Error> {
+  if option_env!("KEYTAR_RS_HEADLESS").is_some() {
+    return headless_unix::find_credentials(service, credentials);
+  }
   let ss = SecretService::new(EncryptionType::Dh)?;
   let collection = ss.get_default_collection()?;
 

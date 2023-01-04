@@ -14,6 +14,15 @@ impl Error {
   }
 }
 
+impl From<std::io::Error> for Error {
+  fn from(error: std::io::Error) -> Self {
+    Error {
+      code: None,
+      details: Some(error.to_string()),
+    }
+  }
+}
+
 impl ToString for Error {
   fn to_string(&self) -> String {
     match self.code {
