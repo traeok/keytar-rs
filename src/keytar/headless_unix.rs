@@ -1,5 +1,8 @@
 use crate::keytar::error::Error;
-use std::{io::Write, process::Command};
+use std::{
+  io::Write,
+  process::{Command, Stdio},
+};
 
 pub fn set_password(
   service: &String,
@@ -7,7 +10,10 @@ pub fn set_password(
   password: &mut String,
 ) -> Result<bool, Error> {
   match Command::new("pass")
+    .stdin(Stdio::piped())
+    .stdout(Stdio::piped())
     .arg("insert")
+    .arg("-e")
     .arg("-f")
     .arg(format!("{}/{}", service, account))
     .spawn()
@@ -15,10 +21,10 @@ pub fn set_password(
     Ok(mut child) => {
       child
         .stdin
-        .as_ref()
+        .as_mut()
         .unwrap()
-        .write(password.as_bytes())
-        .unwrap();
+        .write_all(password.as_bytes())?;
+
       child.wait().unwrap();
       Ok(true)
     }
@@ -27,20 +33,25 @@ pub fn set_password(
 }
 
 pub fn get_password(service: &String, account: &String) -> Result<String, Error> {
-  Ok(
-    String::from_utf8(
-      Command::new("pass")
-        .arg("show")
-        .arg(format!("{}/{}", service, account))
-        .output()
-        .unwrap()
-        .stdout,
-    )
-    .unwrap(),
-  )
+  let mut bytes = Command::new("pass")
+    .arg("show")
+    .arg(format!("{}/{}", service, account))
+    .output()
+    .unwrap()
+    .stdout;
+
+  // pop newline appended by pass
+  if bytes[bytes.len() - 1] == 0xA {
+    bytes.pop();
+  }
+  Ok(String::from_utf8(bytes).unwrap())
 }
 
 pub fn find_password(service: &String) -> Result<String, Error> {
+  if service.contains('/') {
+    let contents: Vec<&str> = service.split('/').collect();
+    return get_password(&contents[0].to_string(), &contents[1].to_string());
+  }
   Ok(
     String::from_utf8(
       Command::new("pass")
@@ -55,8 +66,7 @@ pub fn find_password(service: &String) -> Result<String, Error> {
 }
 
 pub fn delete_password(service: &String, account: &String) -> Result<bool, Error> {
-  println!(
-    "{}",
+  Ok(
     String::from_utf8(
       Command::new("pass")
         .arg("rm")
@@ -64,11 +74,11 @@ pub fn delete_password(service: &String, account: &String) -> Result<bool, Error
         .arg(format!("{}/{}", service, account))
         .output()
         .unwrap()
-        .stdout
+        .stdout,
     )
     .unwrap()
-  );
-  Ok(false)
+    .contains("removed '"),
+  )
 }
 
 pub fn find_credentials(

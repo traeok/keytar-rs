@@ -29,6 +29,7 @@
     "artifacts": "napi artifacts",
     "build": "napi build --platform --release",
     "build:debug": "napi build --platform",
+    "build:headless": "KEYTAR_RS_HEADLESS=1 yarn build",
     "prepublishOnly": "napi prepublish -t npm",
     "test": "ava",
     "version": "napi version"
