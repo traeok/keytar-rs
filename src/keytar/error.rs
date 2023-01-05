@@ -1,5 +1,5 @@
 pub struct Error {
-  pub code: Option<u32>,
+  pub code: Option<i32>,
   pub details: Option<String>,
 }
 
@@ -19,6 +19,15 @@ impl From<std::io::Error> for Error {
     Error {
       code: None,
       details: Some(error.to_string()),
+    }
+  }
+}
+
+impl From<i32> for Error {
+  fn from(error: i32) -> Self {
+    Error {
+      code: Some(error),
+      details: None
     }
   }
 }
