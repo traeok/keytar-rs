@@ -12,6 +12,10 @@ cfg-if = "1.0"
 napi = {version = "2.10.1", default-features = false, features = ["napi4"]}
 napi-derive = "2.9.1"
 
+[features]
+default = ["keyctl"]
+keyctl = []
+
 [target.'cfg(target_os = "windows")'.dependencies.windows]
 features = [
   "Win32_Foundation",
@@ -24,6 +28,9 @@ security-framework = "2.7.0"
 
 [target.'cfg(any(target_os = "freebsd", target_os = "linux"))'.dependencies]
 secret-service = "2.0.2"
+
+[target.'cfg(feature = "keyctl")'.dependencies]
+nc = "0.8"
 
 [build-dependencies]
 napi-build = "2.0.1"

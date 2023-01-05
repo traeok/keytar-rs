@@ -508,6 +508,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "nc"
+version = "0.8.11"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "dc091bf3d6bb2f6532c67d88b2221bd2ec53eab33b68330b93100756c04bc683"
+dependencies = [
+ "cc",
+]
+
+[[package]]
 name = "nix"
 version = "0.22.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -912,6 +921,7 @@ dependencies = [
  "napi",
  "napi-build",
  "napi-derive",
+ "nc",
  "secret-service",
  "security-framework",
  "windows",
