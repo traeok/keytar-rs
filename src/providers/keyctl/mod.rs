@@ -10,6 +10,7 @@ pub enum SpecialId {
   Thread,
 }
 
+#[allow(dead_code)]
 pub enum RequestKeyring {
   Thread,
   Process,

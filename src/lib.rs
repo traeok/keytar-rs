@@ -3,6 +3,7 @@ use napi_derive::napi;
 use workers::{DeletePassword, FindCredentials, FindPassword, GetPassword, SetPassword};
 
 mod keytar;
+mod utils;
 mod workers;
 
 #[cfg(feature = "keyctl")]

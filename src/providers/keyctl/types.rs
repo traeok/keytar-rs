@@ -1,13 +1,49 @@
 use crate::keytar::error::Error;
 use crate::providers::keyctl;
+use crate::utils::u8_slice_to_array;
 
 pub struct Keyring {
   pub id: nc::key_serial_t,
 }
 
+#[derive(Debug)]
 pub struct Key(nc::key_serial_t);
 
 impl Key {
+  pub fn describe(&self) -> Result<String, Error> {
+    let mut vec = vec![0u8; 0];
+
+    let mut ret;
+    unsafe {
+      ret = keyctl::call!(keyctl::Commands::Describe as i32, self.0 as usize, 0, 0)?
+        as nc::key_serial_t;
+    }
+
+    let mut klen;
+    loop {
+      klen = ret;
+      vec.resize((klen + 1) as usize, 0u8);
+
+      unsafe {
+        ret = keyctl::call!(
+          keyctl::Commands::Describe as i32,
+          self.0 as usize,
+          <Vec<u8> as AsMut<[u8]>>::as_mut(&mut vec).as_mut_ptr() as _,
+          klen as usize
+        )? as nc::key_serial_t;
+      }
+      if ret < 0 {
+        return Ok(String::default());
+      }
+
+      if klen >= ret {
+        break;
+      }
+      vec.clear();
+    }
+
+    Ok(String::from_utf8(vec).unwrap())
+  }
   pub fn read_bytes<T: AsMut<[u8]>>(&self, buffer: &mut T) -> Result<usize, Error> {
     let len: usize;
     unsafe {
@@ -56,6 +92,58 @@ impl Keyring {
       )? as nc::key_serial_t;
     }
     Ok(Self { id: real_id })
+  }
+
+  pub fn keys(&self) -> Result<Vec<Key>, Error> {
+    let mut keys: Vec<Key> = Vec::default();
+    let mut vec: Vec<u8> = vec![0u8; 0];
+
+    let mut ret;
+
+    unsafe {
+      ret =
+        keyctl::call!(keyctl::Commands::Read as i32, self.id as usize, 0, 0)? as nc::key_serial_t;
+    }
+
+    let mut kring_len;
+    loop {
+      kring_len = ret;
+      vec.resize((kring_len + 1) as usize, 0u8);
+      unsafe {
+        ret = keyctl::call!(
+          keyctl::Commands::Read as i32,
+          self.id as usize,
+          <Vec<u8> as AsMut<[u8]>>::as_mut(&mut vec).as_mut_ptr() as _,
+          kring_len as usize
+        )? as nc::key_serial_t;
+      }
+
+      if ret < 0 {
+        vec.clear();
+        return Ok(keys);
+      }
+
+      if kring_len >= ret {
+        break;
+      }
+      vec.clear();
+    }
+
+    vec[ret as usize] = 0;
+    let mut i = 0;
+
+    loop {
+      if i + 3 > vec.len() {
+        break;
+      }
+
+      let as_int = nc::key_serial_t::from_ne_bytes(u8_slice_to_array(&vec[i..=i + 3]));
+      keys.push(Key(as_int));
+
+      i += 4;
+    }
+
+    Ok(keys)
   }
 
   pub fn add_key(&self, description: &str, secret: &str) -> Result<Key, Error> {

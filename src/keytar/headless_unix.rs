@@ -1,8 +1,5 @@
 use crate::keytar::error::Error;
-use crate::providers::keyctl::{
-  types::{Key, Keyring},
-  SpecialId,
-};
+use crate::providers::keyctl::{types::Keyring, SpecialId};
 
 pub fn set_password(
   service: &String,
@@ -40,10 +37,24 @@ pub fn delete_password(service: &String, account: &String) -> Result<bool, Error
   Ok(true)
 }
 
-// TODO
 pub fn find_credentials(
   service: &String,
   credentials: &mut Vec<(String, String)>,
 ) -> Result<bool, Error> {
-  Ok(false)
+  let kring = Keyring::from_special_id(SpecialId::User, true)?;
+
+  let kc = kring.keys()?;
+  for k in kc.into_iter() {
+    let metadata = k.describe()?;
+    let desc = metadata.split(";").collect::<Vec<&str>>().pop().unwrap();
+    if !desc.contains(service) {
+      continue;
+    }
+
+    credentials.push((
+      desc.replace("\0", "").to_string(),
+      String::from_utf8(k.read()?).unwrap(),
+    ));
+  }
+  Ok(!credentials.is_empty())
 }
