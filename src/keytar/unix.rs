@@ -1,5 +1,5 @@
 extern crate secret_service;
-use crate::keytar::{error::Error, headless_unix};
+use crate::keytar::{error::Error};
 use secret_service::{EncryptionType, SecretService};
 use std::collections::HashMap;
 
