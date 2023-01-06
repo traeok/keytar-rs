@@ -13,7 +13,7 @@ napi = {version = "2.10.1", default-features = false, features = ["napi4"]}
 napi-derive = "2.9.1"
 
 [features]
-default = ["keyctl"]
+default = []
 keyctl = ["dep:nc"]
 
 [target.'cfg(target_os = "windows")'.dependencies.windows]
