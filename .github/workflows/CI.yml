@@ -142,7 +142,6 @@ jobs:
           path: ${{ env.APP_NAME }}.*.node
           if-no-files-found: error
   build-freebsd:
-    if: ${{ false }} # disabling until issues are fixed w/ zbus
     runs-on: macos-12
     name: Build FreeBSD
     steps:
