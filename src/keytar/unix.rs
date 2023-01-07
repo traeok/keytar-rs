@@ -1,112 +1,49 @@
-extern crate secret_service;
-use crate::keytar::{error::Error};
-use secret_service::{EncryptionType, SecretService};
-use std::collections::HashMap;
-
-impl From<secret_service::Error> for Error {
-  fn from(error: secret_service::Error) -> Self {
-    Error {
-      code: None,
-      details: Some(error.to_string()),
-    }
-  }
-}
+use crate::keytar::error::Error;
+use crate::providers::keyctl::{types::Keyring, SpecialId};
 
 pub fn set_password(
   service: &String,
   account: &String,
   password: &mut String,
 ) -> Result<bool, Error> {
-  let ss = SecretService::new(EncryptionType::Dh)?;
-
-  let collection = ss.get_default_collection()?;
-  let mut properties = HashMap::new();
-  properties.insert("service", service.as_str());
-  properties.insert("account", account.as_str());
-  match collection.create_item(
-    format!("{}/{}", service, account).as_str(),
-    properties,
-    password.as_bytes(),
-    false,
-    "text/plain",
-  ) {
-    Ok(item) => Ok(true),
-    Err(err) => Err(Error::from(err)),
-  }
+  let kring = Keyring::from_special_id(SpecialId::User, true)?;
+  let key = kring.add_key(format!("{}/{}", service, account).as_str(), password)?;
+  Ok(key.id > 0)
 }
 
-pub fn get_password(service: &String, account: &String) -> Result<String, Error> {
-  let ss = SecretService::new(EncryptionType::Dh)?;
-
-  match ss.search_items(vec![("service", service), ("account", account)]) {
-    Ok(item) => match item.get(0) {
-      Some(it) => {
-        let bytes = it.get_secret().unwrap();
-        return Ok(String::from_utf8(bytes).unwrap());
-      }
-      None => Err(Error::from_details(
-        "No items found with the specified attributes",
-      )),
-    },
-    Err(err) => Err(Error::from(err)),
-  }
+pub fn get_password(service: &str, account: &str) -> Result<String, Error> {
+  let kring = Keyring::from_special_id(SpecialId::User, true)?;
+  let key = kring.search(format!("{}/{}", service, account).as_str())?;
+  Ok(key.read_as_utf8()?)
 }
 
 pub fn find_password(service: &String) -> Result<String, Error> {
-  let ss = SecretService::new(EncryptionType::Dh)?;
-  let collection = ss.get_default_collection()?;
-
-  let items = collection.get_all_items()?;
-  for item in items {
-    let label = item.get_label()?;
-    if label.contains(service) {
-      let bytes = item.get_secret().unwrap();
-      let pw = String::from_utf8(bytes).unwrap();
-      return Ok(pw);
-    }
-  }
-
-  Ok(String::default())
+  let kring = Keyring::from_special_id(SpecialId::User, true)?;
+  let key = kring.search(service)?;
+  Ok(key.read_as_utf8()?)
 }
 
 pub fn delete_password(service: &String, account: &String) -> Result<bool, Error> {
-  let ss = SecretService::new(EncryptionType::Dh)?;
-
-  match ss.search_items(vec![("service", service), ("account", account)]) {
-    Ok(item) => match item.get(0) {
-      Some(it) => {
-        it.delete().unwrap();
-        return Ok(true);
-      }
-      None => Err(Error::from_details(
-        "No items found with the specified attributes",
-      )),
-    },
-    Err(err) => Err(Error::from(err)),
-  }
+  let kring = Keyring::from_special_id(SpecialId::User, true)?;
+  let key = kring.search(format!("{}/{}", service, account).as_str())?;
+  key.invalidate()?;
+  Ok(true)
 }
 
 pub fn find_credentials(
   service: &String,
   credentials: &mut Vec<(String, String)>,
 ) -> Result<bool, Error> {
-  let ss = SecretService::new(EncryptionType::Dh)?;
-  let collection = ss.get_default_collection()?;
-
-  let items = collection.get_all_items()?;
-  for item in items {
-    let label = item.get_label()?;
-    if label.contains(service) {
-      let cred: Vec<&str> = label.split("/").collect();
-      let bytes = item.get_secret().unwrap();
-      let pw = String::from_utf8(bytes).unwrap();
-      if cred.is_empty() {
-        credentials.push((String::default(), pw));
-      } else {
-        credentials.push((cred[1].to_string(), pw));
-      }
+  let kring = Keyring::from_special_id(SpecialId::User, true)?;
+  let kc = kring.keys()?;
+  for k in kc.into_iter() {
+    let metadata = k.describe()?;
+    let desc = metadata.split(";").collect::<Vec<&str>>().pop().unwrap();
+    if !desc.contains(service) {
+      continue;
     }
-  }
 
+    credentials.push((desc.replace("\0", "").to_string(), k.read_as_utf8()?));
+  }
   Ok(!credentials.is_empty())
 }

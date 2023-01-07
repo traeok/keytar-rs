@@ -3,11 +3,9 @@ use napi_derive::napi;
 use workers::{DeletePassword, FindCredentials, FindPassword, GetPassword, SetPassword};
 
 mod keytar;
+mod providers;
 mod utils;
 mod workers;
-
-#[cfg(feature = "keyctl")]
-mod providers;
 
 #[napi]
 fn delete_password(service: String, account: String) -> AsyncTask<DeletePassword> {

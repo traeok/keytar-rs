@@ -7,7 +7,9 @@ pub struct Keyring {
 }
 
 #[derive(Debug)]
-pub struct Key(nc::key_serial_t);
+pub struct Key {
+  pub id: nc::key_serial_t,
+}
 
 impl Key {
   pub fn describe(&self) -> Result<String, Error> {
@@ -15,7 +17,7 @@ impl Key {
 
     let mut ret;
     unsafe {
-      ret = keyctl::call!(keyctl::Commands::Describe as i32, self.0 as usize, 0, 0)?
+      ret = keyctl::call!(keyctl::Commands::Describe as i32, self.id as usize, 0, 0)?
         as nc::key_serial_t;
     }
 
@@ -27,7 +29,7 @@ impl Key {
       unsafe {
         ret = keyctl::call!(
           keyctl::Commands::Describe as i32,
-          self.0 as usize,
+          self.id as usize,
           <Vec<u8> as AsMut<[u8]>>::as_mut(&mut vec).as_mut_ptr() as _,
           klen as usize
         )? as nc::key_serial_t;
@@ -44,12 +46,13 @@ impl Key {
 
     Ok(String::from_utf8(vec).unwrap())
   }
+
   pub fn read_bytes<T: AsMut<[u8]>>(&self, buffer: &mut T) -> Result<usize, Error> {
     let len: usize;
     unsafe {
       len = keyctl::call!(
         keyctl::Commands::Read as i32,
-        self.0 as usize,
+        self.id as usize,
         buffer.as_mut().as_mut_ptr() as _,
         buffer.as_mut().len() as _
       )?;
@@ -68,9 +71,13 @@ impl Key {
     Ok(buffer)
   }
 
+  pub fn read_as_utf8(&self) -> Result<String, Error> {
+    Ok(String::from_utf8(self.read()?)?)
+  }
+
   pub fn invalidate(&self) -> Result<(), Error> {
     unsafe {
-      keyctl::call!(keyctl::Commands::Invalidate as i32, self.0 as usize)?;
+      keyctl::call!(keyctl::Commands::Invalidate as i32, self.id as usize)?;
     }
 
     Ok(())
@@ -78,10 +85,6 @@ impl Key {
 }
 
 impl Keyring {
-  pub fn from_id(id: nc::key_serial_t) -> Self {
-    Keyring { id }
-  }
-
   pub fn from_special_id(id: keyctl::SpecialId, should_create: bool) -> Result<Self, Error> {
     let real_id: nc::key_serial_t;
     unsafe {
@@ -130,17 +133,14 @@ impl Keyring {
     }
 
     vec[ret as usize] = 0;
-    let mut i = 0;
 
-    loop {
+    for i in (0..vec.len()).step_by(4) {
       if i + 3 > vec.len() {
         break;
       }
 
       let as_int = nc::key_serial_t::from_ne_bytes(u8_slice_to_array(&vec[i..=i + 3]));
-      keys.push(Key(as_int));
-
-      i += 4;
+      keys.push(Key { id: as_int });
     }
 
     Ok(keys)
@@ -160,7 +160,7 @@ impl Keyring {
       };
     }
 
-    Ok(Key(id))
+    Ok(Key { id })
   }
 
   pub fn search(&self, description: &str) -> Result<Key, Error> {
@@ -168,9 +168,9 @@ impl Keyring {
       "Invalid description for Keyring::search",
     )))?;
 
-    let key_id: nc::key_serial_t;
+    let id: nc::key_serial_t;
     unsafe {
-      key_id = keyctl::call!(
+      id = keyctl::call!(
         keyctl::Commands::Search as i32,
         self.id as usize,
         keyctl::KeyType::User.as_str().as_ptr() as _,
@@ -179,6 +179,6 @@ impl Keyring {
       )? as nc::key_serial_t;
     }
 
-    Ok(Key(key_id))
+    Ok(Key { id })
   }
 }

@@ -15,15 +15,6 @@ impl From<security_framework::base::Error> for Error {
   }
 }
 
-impl From<std::string::FromUtf8Error> for Error {
-  fn from(error: std::string::FromUtf8Error) -> Self {
-    Error {
-      code: None,
-      details: Some(error.to_string()),
-    }
-  }
-}
-
 pub fn set_password(
   service: &String,
   account: &String,

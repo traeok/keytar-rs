@@ -4,7 +4,6 @@ pub struct Error {
 }
 
 impl Error {
-  // not actually dead: only used on certain platforms
   #[allow(dead_code)]
   pub fn from_details(details: &str) -> Self {
     Error {
@@ -27,7 +26,16 @@ impl From<i32> for Error {
   fn from(error: i32) -> Self {
     Error {
       code: Some(error),
-      details: None
+      details: None,
+    }
+  }
+}
+
+impl From<std::string::FromUtf8Error> for Error {
+  fn from(error: std::string::FromUtf8Error) -> Self {
+    Error {
+      code: None,
+      details: Some(error.to_string()),
     }
   }
 }

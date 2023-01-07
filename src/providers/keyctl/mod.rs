@@ -1,4 +1,6 @@
 pub mod types;
+
+#[allow(dead_code)]
 pub enum SpecialId {
   Requestor = -8,
   RequestKeyAuthKey,
@@ -21,6 +23,7 @@ pub enum RequestKeyring {
   Requestor,
 }
 
+#[allow(dead_code)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum KeyType {
   Keyring,
@@ -40,6 +43,7 @@ impl KeyType {
   }
 }
 
+#[allow(dead_code)]
 pub enum Commands {
   GetKeyringId,
   JoinSessionKeyring,
