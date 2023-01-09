@@ -163,6 +163,15 @@ impl Keyring {
     Ok(Key { id })
   }
 
+  pub fn find_key(&self, description: &str) -> Result<Key, Error> {
+    let id: nc::key_serial_t;
+    unsafe {
+      id = nc::request_key(keyctl::KeyType::User.as_str(), description, "", self.id)?;
+    }
+
+    Ok(Key { id })
+  }
+
   pub fn search(&self, description: &str) -> Result<Key, Error> {
     let desc = std::ffi::CString::new(description).or(Err(Error::from_details(
       "Invalid description for Keyring::search",

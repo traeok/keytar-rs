@@ -19,7 +19,7 @@ pub fn get_password(service: &str, account: &str) -> Result<String, Error> {
 
 pub fn find_password(service: &String) -> Result<String, Error> {
   let kring = Keyring::from_special_id(SpecialId::User, true)?;
-  let key = kring.search(service)?;
+  let key = kring.find_key(service)?;
   Ok(key.read_as_utf8()?)
 }
 
