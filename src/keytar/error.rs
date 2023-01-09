@@ -1,15 +1,41 @@
 pub struct Error {
-  pub code: Option<u32>,
+  pub code: Option<i32>,
   pub details: Option<String>,
 }
 
 impl Error {
-  // not actually dead: only used on certain platforms
   #[allow(dead_code)]
   pub fn from_details(details: &str) -> Self {
     Error {
       code: None,
       details: Some(details.to_string()),
+    }
+  }
+}
+
+impl From<std::io::Error> for Error {
+  fn from(error: std::io::Error) -> Self {
+    Error {
+      code: None,
+      details: Some(error.to_string()),
+    }
+  }
+}
+
+impl From<i32> for Error {
+  fn from(error: i32) -> Self {
+    Error {
+      code: Some(error),
+      details: None,
+    }
+  }
+}
+
+impl From<std::string::FromUtf8Error> for Error {
+  fn from(error: std::string::FromUtf8Error) -> Self {
+    Error {
+      code: None,
+      details: Some(error.to_string()),
     }
   }
 }

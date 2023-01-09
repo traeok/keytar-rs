@@ -3,6 +3,8 @@ use napi_derive::napi;
 use workers::{DeletePassword, FindCredentials, FindPassword, GetPassword, SetPassword};
 
 mod keytar;
+mod providers;
+mod utils;
 mod workers;
 
 #[napi]
