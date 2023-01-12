@@ -9,8 +9,8 @@ use security_framework::{
 impl From<security_framework::base::Error> for Error {
   fn from(error: security_framework::base::Error) -> Self {
     Error {
-      code: None,
-      details: Some(error.to_string()),
+      code: error.code(),
+      details: error.message(),
     }
   }
 }
