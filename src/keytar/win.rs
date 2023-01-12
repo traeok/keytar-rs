@@ -7,7 +7,7 @@ use crate::keytar::error::Error;
 impl From<WIN32_ERROR> for Error {
   fn from(error: WIN32_ERROR) -> Self {
     Error {
-      code: Some(error.0),
+      code: Some(error.0 as i32),
       details: Some(error.to_hresult().message().to_string()),
     }
   }
