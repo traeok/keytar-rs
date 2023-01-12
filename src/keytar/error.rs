@@ -1,5 +1,5 @@
 pub struct Error {
-  pub code: Option<u32>,
+  pub code: Option<i32>,
   pub details: Option<String>,
 }
 

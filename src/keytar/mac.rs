@@ -9,7 +9,7 @@ use security_framework::{
 impl From<security_framework::base::Error> for Error {
   fn from(error: security_framework::base::Error) -> Self {
     Error {
-      code: error.code(),
+      code: Some(error.code()),
       details: error.message(),
     }
   }
