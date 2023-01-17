@@ -1,9 +1,20 @@
+use std::string::FromUtf8Error;
+
 use thiserror::Error;
 
 #[derive(Error, Debug)]
 pub enum KeytarError {
+  #[error("[keytar-rs] {service:?} library returned an error:\n\n{details:?}")]
+  Library { service: String, details: String },
+
+  #[error("[keytar-rs] No items were found that match the given parameters.")]
+  NotFound,
+
   #[error("[keytar-rs] An OS error has occurred:\n\n{0}")]
-  OSError(String),
+  Os(String),
+
+  #[error("[keytar-rs] A UTF-8 error has occurred:\n\n{0}")]
+  Utf8(String),
 }
 
 // TODO: remove and use enum above instead
@@ -35,5 +46,11 @@ impl ToString for Error {
         None => format!("[ERR] keytar-rs error - no further info provided."),
       },
     }
+  }
+}
+
+impl From<FromUtf8Error> for KeytarError {
+  fn from(error: FromUtf8Error) -> Self {
+    KeytarError::Utf8(format!("{:?}", error))
   }
 }

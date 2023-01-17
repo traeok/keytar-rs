@@ -30,7 +30,7 @@ pub fn set_password(
     unsafe {
       error_code = GetLastError();
     }
-    return Err(KeytarError::OSError(
+    return Err(KeytarError::Os(
       error_code.to_hresult().message().to_string(),
     ));
   }
@@ -59,7 +59,7 @@ pub fn get_password(service: &String, account: &String) -> Result<String, Keytar
       error_code = GetLastError();
     }
 
-    return Err(KeytarError::OSError(
+    return Err(KeytarError::Os(
       error_code.to_hresult().message().to_string(),
     ));
   }
@@ -103,7 +103,7 @@ pub fn delete_password(service: &String, account: &String) -> Result<bool, Keyta
       return Ok(false);
     }
 
-    return Err(KeytarError::OSError(
+    return Err(KeytarError::Os(
       error_code.to_hresult().message().to_string(),
     ));
   }
@@ -137,7 +137,7 @@ pub fn find_password(service: &String) -> Result<String, KeytarError> {
       return Ok(String::default());
     }
 
-    return Err(KeytarError::OSError(
+    return Err(KeytarError::Os(
       error_code.to_hresult().message().to_string(),
     ));
   }
@@ -185,7 +185,7 @@ pub fn find_credentials(
       return Ok(false);
     }
 
-    return Err(KeytarError::OSError(
+    return Err(KeytarError::Os(
       error_code.to_hresult().message().to_string(),
     ));
   }
