@@ -8,7 +8,7 @@ use super::error::KeytarError;
 impl From<secret_service::Error> for KeytarError {
   fn from(err: secret_service::Error) -> Self {
     KeytarError::Library {
-      service: "secret_service".to_string(),
+      name: "secret_service".to_string(),
       details: format!("{:?}", err),
     }
   }

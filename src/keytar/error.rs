@@ -1,11 +1,13 @@
 use std::{str::Utf8Error, string::FromUtf16Error, string::FromUtf8Error};
-
 use thiserror::Error;
 
 #[derive(Error, Debug)]
 pub enum KeytarError {
-  #[error("[keytar-rs] {service:?} library returned an error:\n\n{details:?}")]
-  Library { service: String, details: String },
+  #[error("[keytar-rs] Invalid parameter provided for '{argument:?}'. Details:\n\n{details:?}")]
+  InvalidArg { argument: String, details: String },
+
+  #[error("[keytar-rs] {name:?} library returned an error:\n\n{details:?}")]
+  Library { name: String, details: String },
 
   #[error("[keytar-rs] No items were found that match the given parameters.")]
   NotFound,
@@ -18,38 +20,6 @@ pub enum KeytarError {
 
   #[error("[keytar-rs] A UTF-16 error has occurred:\n\n{0}")]
   Utf16(String),
-}
-
-// TODO: remove and use enum above instead
-pub struct Error {
-  pub code: Option<i32>,
-  pub details: Option<String>,
-}
-
-impl Error {
-  // not actually dead: only used on certain platforms
-  #[allow(dead_code)]
-  pub fn from_details(details: &str) -> Self {
-    Error {
-      code: None,
-      details: Some(details.to_string()),
-    }
-  }
-}
-
-impl ToString for Error {
-  fn to_string(&self) -> String {
-    match self.code {
-      Some(code) => match &self.details {
-        Some(detail) => format!("[ERR] keytar-rs - code: {}, details: {}", code, detail),
-        None => format!("[ERR] keytar-rs - code: {}", code),
-      },
-      None => match &self.details {
-        Some(detail) => format!("[ERR] keytar-rs - details: {}", detail),
-        None => format!("[ERR] keytar-rs error - no further info provided."),
-      },
-    }
-  }
 }
 
 impl From<FromUtf8Error> for KeytarError {
