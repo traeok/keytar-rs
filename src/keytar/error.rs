@@ -1,3 +1,12 @@
+use thiserror::Error;
+
+#[derive(Error, Debug)]
+pub enum KeytarError {
+  #[error("[keytar-rs] An OS error has occurred:\n\n{0}")]
+  OSError(String),
+}
+
+// TODO: remove and use enum above instead
 pub struct Error {
   pub code: Option<i32>,
   pub details: Option<String>,
