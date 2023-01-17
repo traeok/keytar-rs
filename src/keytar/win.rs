@@ -3,6 +3,12 @@ use std::ffi::c_void;
 use std::result::Result;
 use windows::{core::*, Win32::Foundation::*, Win32::Security::Credentials::*};
 
+impl From<WIN32_ERROR> for KeytarError {
+  fn from(error: WIN32_ERROR) -> Self {
+    KeytarError::Os(error.to_hresult().message().to_string())
+  }
+}
+
 pub fn set_password(
   service: &String,
   account: &String,
@@ -10,6 +16,8 @@ pub fn set_password(
 ) -> Result<bool, KeytarError> {
   let mut cred: CREDENTIALW = CREDENTIALW::default();
   cred.Type = CRED_TYPE_GENERIC;
+
+  // Build WinAPI strings and object parameters from arguments
   let mut target_bytes: Vec<u16> = format!("{}/{}", service, account).encode_utf16().collect();
   target_bytes.push(0);
   cred.TargetName = PWSTR::from_raw(target_bytes.as_mut_ptr());
@@ -20,6 +28,7 @@ pub fn set_password(
   cred.CredentialBlob = password.as_mut_ptr();
   cred.Persist = CRED_PERSIST_ENTERPRISE;
 
+  // Save credential to user's credential set
   let write_result: bool;
   unsafe {
     write_result = bool::from(CredWriteW(&cred, 0));
@@ -30,9 +39,7 @@ pub fn set_password(
     unsafe {
       error_code = GetLastError();
     }
-    return Err(KeytarError::Os(
-      error_code.to_hresult().message().to_string(),
-    ));
+    return Err(KeytarError::from(error_code));
   }
 
   Ok(true)
@@ -43,6 +50,7 @@ pub fn get_password(service: &String, account: &String) -> Result<String, Keytar
   let mut target_name: Vec<u16> = format!("{}/{}", service, account).encode_utf16().collect();
   target_name.push(0);
 
+  // Attempt to read credential from user's credential set
   let read_result: bool;
   unsafe {
     read_result = bool::from(CredReadW(
@@ -59,19 +67,19 @@ pub fn get_password(service: &String, account: &String) -> Result<String, Keytar
       error_code = GetLastError();
     }
 
-    return Err(KeytarError::Os(
-      error_code.to_hresult().message().to_string(),
-    ));
+    return Err(KeytarError::from(error_code));
   }
 
+  // Build buffer for credential secret and return as UTF-8 string
   let mut pw_bytes: Vec<u8> = Vec::new();
   unsafe {
     let pw_len = (*cred).CredentialBlobSize as usize;
     pw_bytes.reserve(pw_len);
 
-    let pw_str = String::from(
-      std::str::from_utf8(std::slice::from_raw_parts((*cred).CredentialBlob, pw_len)).unwrap(),
-    );
+    let pw_str = String::from(std::str::from_utf8(std::slice::from_raw_parts(
+      (*cred).CredentialBlob,
+      pw_len,
+    ))?);
 
     CredFree(cred as *const c_void);
     Ok(pw_str)
@@ -82,6 +90,7 @@ pub fn delete_password(service: &String, account: &String) -> Result<bool, Keyta
   let mut target_name: Vec<u16> = format!("{}/{}", service, account).encode_utf16().collect();
   target_name.push(0);
 
+  // Attempt to delete credential from user's credential set
   let delete_result: bool;
   unsafe {
     delete_result = bool::from(CredDeleteW(
@@ -103,9 +112,7 @@ pub fn delete_password(service: &String, account: &String) -> Result<bool, Keyta
       return Ok(false);
     }
 
-    return Err(KeytarError::Os(
-      error_code.to_hresult().message().to_string(),
-    ));
+    return Err(KeytarError::from(error_code));
   }
 
   Ok(true)
@@ -118,6 +125,7 @@ pub fn find_password(service: &String) -> Result<String, KeytarError> {
   let mut count: u32 = 0;
   let mut creds: *mut *mut CREDENTIALW = std::ptr::null_mut::<*mut CREDENTIALW>();
 
+  // Attempt to find matching credential from user's credential set
   let find_result: bool;
   unsafe {
     find_result = bool::from(CredEnumerateW(
@@ -137,18 +145,17 @@ pub fn find_password(service: &String) -> Result<String, KeytarError> {
       return Ok(String::default());
     }
 
-    return Err(KeytarError::Os(
-      error_code.to_hresult().message().to_string(),
-    ));
+    return Err(KeytarError::from(error_code));
   }
 
   let cred: *const CREDENTIALW;
   unsafe {
     cred = *creds.offset(0);
     let size = (*cred).CredentialBlobSize as usize;
-    let pw = String::from(
-      std::str::from_utf8(std::slice::from_raw_parts((*cred).CredentialBlob, size)).unwrap(),
-    );
+    let pw = String::from(std::str::from_utf8(std::slice::from_raw_parts(
+      (*cred).CredentialBlob,
+      size,
+    ))?);
     CredFree(creds as *const c_void);
 
     Ok(pw)
@@ -166,6 +173,7 @@ pub fn find_credentials(
   let mut count: u32 = 0;
   let mut creds: *mut *mut CREDENTIALW = std::ptr::null_mut::<*mut CREDENTIALW>();
 
+  // Attempt to fetch user's credential set
   let find_result: bool;
   unsafe {
     find_result = bool::from(CredEnumerateW(
@@ -185,11 +193,10 @@ pub fn find_credentials(
       return Ok(false);
     }
 
-    return Err(KeytarError::Os(
-      error_code.to_hresult().message().to_string(),
-    ));
+    return Err(KeytarError::from(error_code));
   }
 
+  // Find and build matching credential list from user's credential set
   for i in 0..count {
     let cred: &CREDENTIALW;
     unsafe {
@@ -202,18 +209,15 @@ pub fn find_credentials(
 
     let password: String;
     unsafe {
-      password = String::from(
-        std::str::from_utf8(std::slice::from_raw_parts(
-          cred.CredentialBlob,
-          cred.CredentialBlobSize as usize,
-        ))
-        .unwrap(),
-      );
+      password = String::from(std::str::from_utf8(std::slice::from_raw_parts(
+        cred.CredentialBlob,
+        cred.CredentialBlobSize as usize,
+      ))?);
     }
 
     let username: String;
     unsafe {
-      username = cred.UserName.to_string().unwrap();
+      username = cred.UserName.to_string()?;
     }
     credentials.push((username, password));
   }

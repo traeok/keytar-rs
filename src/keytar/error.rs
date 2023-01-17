@@ -1,4 +1,4 @@
-use std::string::FromUtf8Error;
+use std::{str::Utf8Error, string::FromUtf16Error, string::FromUtf8Error};
 
 use thiserror::Error;
 
@@ -15,6 +15,9 @@ pub enum KeytarError {
 
   #[error("[keytar-rs] A UTF-8 error has occurred:\n\n{0}")]
   Utf8(String),
+
+  #[error("[keytar-rs] A UTF-16 error has occurred:\n\n{0}")]
+  Utf16(String),
 }
 
 // TODO: remove and use enum above instead
@@ -51,6 +54,18 @@ impl ToString for Error {
 
 impl From<FromUtf8Error> for KeytarError {
   fn from(error: FromUtf8Error) -> Self {
+    KeytarError::Utf8(format!("{:?}", error))
+  }
+}
+
+impl From<FromUtf16Error> for KeytarError {
+  fn from(error: FromUtf16Error) -> Self {
+    KeytarError::Utf16(format!("{:?}", error))
+  }
+}
+
+impl From<Utf8Error> for KeytarError {
+  fn from(error: Utf8Error) -> Self {
     KeytarError::Utf8(format!("{:?}", error))
   }
 }

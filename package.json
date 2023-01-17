@@ -31,6 +31,8 @@
     "build:debug": "napi build --platform",
     "prepublishOnly": "napi prepublish -t npm",
     "test": "ava",
+    "test:delete": "ava --match=\"delete*\"",
+    "test:find": "ava --match=\"find*\"",
     "version": "napi version"
   },
   "packageManager": "yarn@3.3.0"
