@@ -113,7 +113,7 @@ Some benefits to using keytar-rs:
 
 - [x] **Cross-platform support** makes for straight-forward secrets management
 - [x] **Existing OS credentials are supported** out-of-the-box
-- [x] **Avoids heap allocation** - memory allocation only performed as needed within OS-specific APIs
+- [x] **Avoids memory allocation** - memory only allocated as needed for OS-specific APIs
 
 ## Node API usage
 

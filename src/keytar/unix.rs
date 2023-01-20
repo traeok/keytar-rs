@@ -1,13 +1,15 @@
 extern crate secret_service;
-use crate::keytar::error::Error;
-use secret_service::{EncryptionType, SecretService};
 use std::collections::HashMap;
 
-impl From<secret_service::Error> for Error {
-  fn from(error: secret_service::Error) -> Self {
-    Error {
-      code: None,
-      details: Some(error.to_string()),
+use secret_service::{EncryptionType, SecretService};
+
+use super::error::KeytarError;
+
+impl From<secret_service::Error> for KeytarError {
+  fn from(err: secret_service::Error) -> Self {
+    KeytarError::Library {
+      name: "secret_service".to_string(),
+      details: format!("{:?}", err),
     }
   }
 }
@@ -16,7 +18,7 @@ pub fn set_password(
   service: &String,
   account: &String,
   password: &mut String,
-) -> Result<bool, Error> {
+) -> Result<bool, KeytarError> {
   let ss = SecretService::new(EncryptionType::Dh)?;
 
   let collection = ss.get_default_collection()?;
@@ -30,38 +32,37 @@ pub fn set_password(
     false,
     "text/plain",
   ) {
-    Ok(item) => Ok(true),
-    Err(err) => Err(Error::from(err)),
+    Ok(_item) => Ok(true),
+    Err(err) => Err(KeytarError::from(err)),
   }
 }
 
-pub fn get_password(service: &String, account: &String) -> Result<String, Error> {
+pub fn get_password(service: &String, account: &String) -> Result<String, KeytarError> {
   let ss = SecretService::new(EncryptionType::Dh)?;
 
   match ss.search_items(vec![("service", service), ("account", account)]) {
     Ok(item) => match item.get(0) {
       Some(it) => {
-        let bytes = it.get_secret().unwrap();
-        return Ok(String::from_utf8(bytes).unwrap());
+        let bytes = it.get_secret()?;
+        return Ok(String::from_utf8(bytes)?);
       }
-      None => Err(Error::from_details(
-        "No items found with the specified attributes",
-      )),
+      None => Err(KeytarError::NotFound),
     },
-    Err(err) => Err(Error::from(err)),
+    Err(err) => Err(KeytarError::from(err)),
   }
 }
 
-pub fn find_password(service: &String) -> Result<String, Error> {
+pub fn find_password(service: &String) -> Result<String, KeytarError> {
   let ss = SecretService::new(EncryptionType::Dh)?;
+
   let collection = ss.get_default_collection()?;
 
   let items = collection.get_all_items()?;
   for item in items {
     let label = item.get_label()?;
     if label.contains(service) {
-      let bytes = item.get_secret().unwrap();
-      let pw = String::from_utf8(bytes).unwrap();
+      let bytes = item.get_secret()?;
+      let pw = String::from_utf8(bytes)?;
       return Ok(pw);
     }
   }
@@ -69,28 +70,27 @@ pub fn find_password(service: &String) -> Result<String, Error> {
   Ok(String::default())
 }
 
-pub fn delete_password(service: &String, account: &String) -> Result<bool, Error> {
+pub fn delete_password(service: &String, account: &String) -> Result<bool, KeytarError> {
   let ss = SecretService::new(EncryptionType::Dh)?;
 
   match ss.search_items(vec![("service", service), ("account", account)]) {
     Ok(item) => match item.get(0) {
       Some(it) => {
-        it.delete().unwrap();
+        it.delete()?;
         return Ok(true);
       }
-      None => Err(Error::from_details(
-        "No items found with the specified attributes",
-      )),
+      None => Err(KeytarError::NotFound),
     },
-    Err(err) => Err(Error::from(err)),
+    Err(err) => Err(KeytarError::from(err)),
   }
 }
 
 pub fn find_credentials(
   service: &String,
   credentials: &mut Vec<(String, String)>,
-) -> Result<bool, Error> {
+) -> Result<bool, KeytarError> {
   let ss = SecretService::new(EncryptionType::Dh)?;
+
   let collection = ss.get_default_collection()?;
 
   let items = collection.get_all_items()?;
@@ -98,8 +98,8 @@ pub fn find_credentials(
     let label = item.get_label()?;
     if label.contains(service) {
       let cred: Vec<&str> = label.split("/").collect();
-      let bytes = item.get_secret().unwrap();
-      let pw = String::from_utf8(bytes).unwrap();
+      let bytes = item.get_secret()?;
+      let pw = String::from_utf8(bytes)?;
       if cred.is_empty() {
         credentials.push((String::default(), pw));
       } else {
