@@ -115,9 +115,13 @@ Some benefits to using keytar-rs:
 - [x] **Existing OS credentials are supported** out-of-the-box
 - [x] **Avoids memory allocation** - memory only allocated as needed for OS-specific APIs
 
-## Node API usage
+## Node API documentation
 
 ### deletePassword
+
+Deletes a password with matching `service` and `account` parameters.
+
+**Returns:** Whether the password was deleted successfully.
 
 ```ts
 function deletePassword(service: string, account: string) -> Promise<boolean>
@@ -125,9 +129,13 @@ function deletePassword(service: string, account: string) -> Promise<boolean>
 
 ### findCredentials
 
+Finds all credentials with a matching `service` parameter.
+
+**Returns:** An array of `Credential` objects, containing the `account` and `password` for each credential that is found within `service`.
+
 ```ts
 interface Credential {
-  username: string;
+  account: string;
   password: string;
 };
 
@@ -136,11 +144,19 @@ function findCredentials(service: string) -> Promise<Array<Credential>>
 
 ### findPassword
 
+Finds a password with a matching `service` and `account` parameter.
+
+**Returns:** The first password found in `<service>/<account>`, or `''` (empty string) if not found.
+
 ```ts
 function findPassword(service: string, account: string) -> Promise<string>
 ```
 
 ### getPassword
+
+Gets a password with a matching `service` and `account` parameter.
+
+**Returns:** The password stored under `<service>/<account>`.
 
 ```ts
 function getPassword(service: string, account: string) -> Promise<string>
@@ -148,9 +164,10 @@ function getPassword(service: string, account: string) -> Promise<string>
 
 ### setPassword
 
+Stores a password with the given `service`, `account`, and `password`.
+
+**Returns:** Whether the password was stored successfully.
+
 ```ts
 function setPassword(service: string, account: string, password: string) -> Promise<boolean>
 ```
-
-*Docs coming soon!*
-
