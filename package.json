@@ -15,6 +15,9 @@
     }
   },
   "license": "MIT",
+  "dependencies": {
+    "node-password-store": "^1.0.0"
+  },
   "devDependencies": {
     "@napi-rs/cli": "^2.13.0",
     "ava": "^4.3.3"
