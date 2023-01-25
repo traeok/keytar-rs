@@ -28,11 +28,8 @@ if (process.env.KTRS_CONFIG != null && existsSync(process.env.KTRS_CONFIG)) {
 }
 
 let pwStore;
-if (
-  process.env.KTRS_KEY_PATH != null &&
-  existsSync(process.env.KTRS_KEY_PATH)
-) {
-  pwStore = PasswordStore.create(process.env.KTRS_KEY_PATH);
+if (process.env.KTRS_KEY_PATH != null) {
+  pwStore = new PasswordStore(process.env.KTRS_KEY_PATH);
   module.exports.deletePassword = pwStore.deletePassword.bind(pwStore);
   module.exports.findCredentials = pwStore.findCredentials.bind(pwStore);
   module.exports.findPassword = pwStore.findPassword.bind(pwStore);

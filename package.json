@@ -16,7 +16,7 @@
   },
   "license": "MIT",
   "dependencies": {
-    "node-password-store": "^1.0.0"
+    "node-password-store": "github:t1m0thyj/node-password-store"
   },
   "devDependencies": {
     "@napi-rs/cli": "^2.13.0",
