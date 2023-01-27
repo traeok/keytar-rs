@@ -1,4 +1,4 @@
-use napi::{Env, Error, JsBoolean, JsString, Result, Task};
+use napi::{Env, Error, JsBoolean, JsString, Result, Task, JsUnknown, JsNull};
 use napi_derive::napi;
 
 use crate::keytar;
@@ -36,8 +36,8 @@ pub struct Credential {
 
 #[napi]
 impl Task for GetPassword {
-  type Output = String;
-  type JsValue = JsString;
+  type Output = Option<String>;
+  type JsValue = JsUnknown;
 
   fn compute(&mut self) -> Result<Self::Output> {
     match keytar::get_password(&self.service, &self.account) {
@@ -47,7 +47,10 @@ impl Task for GetPassword {
   }
 
   fn resolve(&mut self, env: Env, output: Self::Output) -> Result<Self::JsValue> {
-    env.create_string(output.as_str())
+    return Ok(match output {
+      Some(pw) => env.create_string(pw.as_str())?.into_unknown(),
+      None => env.get_null()?.into_unknown()
+    });
   }
 
   fn reject(&mut self, _env: Env, err: Error) -> Result<Self::JsValue> {
@@ -58,7 +61,7 @@ impl Task for GetPassword {
 #[napi]
 impl Task for SetPassword {
   type Output = bool;
-  type JsValue = JsBoolean;
+  type JsValue = JsUnknown;
 
   fn compute(&mut self) -> Result<Self::Output> {
     match keytar::set_password(&self.service, &self.account, &mut self.password) {
@@ -68,7 +71,7 @@ impl Task for SetPassword {
   }
 
   fn resolve(&mut self, env: Env, output: Self::Output) -> Result<Self::JsValue> {
-    env.get_boolean(output)
+    Ok(env.get_null()?.into_unknown())
   }
 
   fn reject(&mut self, _env: Env, err: Error) -> Result<Self::JsValue> {
@@ -129,8 +132,8 @@ impl Task for FindCredentials {
 
 #[napi]
 impl Task for FindPassword {
-  type Output = String;
-  type JsValue = JsString;
+  type Output = Option<String>;
+  type JsValue = JsUnknown;
 
   fn compute(&mut self) -> Result<Self::Output> {
     match keytar::find_password(&self.service) {
@@ -140,7 +143,10 @@ impl Task for FindPassword {
   }
 
   fn resolve(&mut self, env: Env, output: Self::Output) -> Result<Self::JsValue> {
-    Ok(env.create_string(output.as_str()).unwrap())
+    return Ok(match output {
+      Some(pw) => env.create_string(pw.as_str())?.into_unknown(),
+      None => env.get_null()?.into_unknown()
+    });
   }
 
   fn reject(&mut self, _env: Env, err: Error) -> Result<Self::JsValue> {

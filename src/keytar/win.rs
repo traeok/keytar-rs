@@ -45,7 +45,7 @@ pub fn set_password(
   Ok(true)
 }
 
-pub fn get_password(service: &String, account: &String) -> Result<String, KeytarError> {
+pub fn get_password(service: &String, account: &String) -> Result<Option<String>, KeytarError> {
   let mut cred: *mut CREDENTIALW = std::ptr::null_mut::<CREDENTIALW>();
   let mut target_name: Vec<u16> = format!("{}/{}", service, account).encode_utf16().collect();
   target_name.push(0);
@@ -67,6 +67,10 @@ pub fn get_password(service: &String, account: &String) -> Result<String, Keytar
       error_code = GetLastError();
     }
 
+    if error_code == ERROR_NOT_FOUND {
+      return Ok(None);
+    }
+
     return Err(KeytarError::from(error_code));
   }
 
@@ -82,7 +86,7 @@ pub fn get_password(service: &String, account: &String) -> Result<String, Keytar
     ))?);
 
     CredFree(cred as *const c_void);
-    Ok(pw_str)
+    Ok(Some(pw_str))
   }
 }
 
@@ -118,7 +122,7 @@ pub fn delete_password(service: &String, account: &String) -> Result<bool, Keyta
   Ok(true)
 }
 
-pub fn find_password(service: &String) -> Result<String, KeytarError> {
+pub fn find_password(service: &String) -> Result<Option<String>, KeytarError> {
   let mut filter: Vec<u16> = format!("{}*", service).encode_utf16().collect();
   filter.push(0);
 
@@ -142,7 +146,7 @@ pub fn find_password(service: &String) -> Result<String, KeytarError> {
       error_code = GetLastError();
     }
     if error_code == ERROR_NOT_FOUND {
-      return Ok(String::default());
+      return Ok(None);
     }
 
     return Err(KeytarError::from(error_code));
@@ -158,7 +162,7 @@ pub fn find_password(service: &String) -> Result<String, KeytarError> {
     ))?);
     CredFree(creds as *const c_void);
 
-    Ok(pw)
+    Ok(Some(pw))
   }
 }
 
