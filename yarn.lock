@@ -81,7 +81,7 @@ __metadata:
   dependencies:
     "@napi-rs/cli": ^2.13.0
     ava: ^4.3.3
-    node-password-store: "github:t1m0thyj/node-password-store"
+    node-password-store: "https://github.com/t1m0thyj/node-password-store/archive/refs/tags/v1.0.0-alpha.tar.gz"
   languageName: unknown
   linkType: soft
 
@@ -1638,12 +1638,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"node-password-store@github:t1m0thyj/node-password-store":
+"node-password-store@https://github.com/t1m0thyj/node-password-store/archive/refs/tags/v1.0.0-alpha.tar.gz":
   version: 1.0.0
-  resolution: "node-password-store@https://github.com/t1m0thyj/node-password-store.git#commit=751ed0cab5403d3fc669e7c8e1277e8c96d5b436"
+  resolution: "node-password-store@https://github.com/t1m0thyj/node-password-store/archive/refs/tags/v1.0.0-alpha.tar.gz"
   dependencies:
     kbpgp: 2.1.15
-  checksum: 8cde6be1379c4f6dfc0a95306c072508a28fd1f5216045a563b7ab9f29b6e9cb0356f83d850dbcf4a6af2c0bd34d91f0a1436d7616dbc48b2d347a4213880e96
+  checksum: 5cfd149aa7888985a2de497abfe02265de4365476f4a9cf69a99ba6534129b9aa40cb0d346d084fc75399a365ada8d4ea6da1fb1be16478636dd0267c2f2a5a0
   languageName: node
   linkType: hard
 

@@ -15,9 +15,6 @@
     }
   },
   "license": "MIT",
-  "dependencies": {
-    "node-password-store": "github:t1m0thyj/node-password-store"
-  },
   "devDependencies": {
     "@napi-rs/cli": "^2.13.0",
     "ava": "^4.3.3"
@@ -38,5 +35,8 @@
     "test:find": "ava --match=\"find*\"",
     "version": "napi version"
   },
-  "packageManager": "yarn@3.3.0"
+  "packageManager": "yarn@3.3.0",
+  "dependencies": {
+    "node-password-store": "https://github.com/t1m0thyj/node-password-store/archive/refs/tags/v1.0.0-alpha.tar.gz"
+  }
 }
