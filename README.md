@@ -105,8 +105,8 @@ keytar-rs is a native Node.js module for accessing and managing OS credential st
 keytar-rs supports the following operations within credential storage:
 
 - [x] **Set** a credential
-- [x] **Retrieve** a credential 
-- [x] **Find all credentials** with matching attributes 
+- [x] **Retrieve** a credential
+- [x] **Find all credentials** with matching attributes
 - [x] **Find a password** with matching attributes
 
 Some benefits to using keytar-rs:
@@ -146,28 +146,26 @@ function findCredentials(service: string) -> Promise<Array<Credential>>
 
 Finds a password with a matching `service` and `account` parameter.
 
-**Returns:** The first password found in `<service>/<account>`, or `''` (empty string) if not found.
+**Returns:** The first password found in `<service>/<account>`, or `null` if not found.
 
 ```ts
-function findPassword(service: string, account: string) -> Promise<string>
+function findPassword(service: string, account: string) -> Promise<string | null>
 ```
 
 ### getPassword
 
 Gets a password with a matching `service` and `account` parameter.
 
-**Returns:** The password stored under `<service>/<account>`.
+**Returns:** The password stored under `<service>/<account>`, or `null` if not found.
 
 ```ts
-function getPassword(service: string, account: string) -> Promise<string>
+function getPassword(service: string, account: string) -> Promise<string | null>
 ```
 
 ### setPassword
 
 Stores a password with the given `service`, `account`, and `password`.
 
-**Returns:** Whether the password was stored successfully.
-
 ```ts
-function setPassword(service: string, account: string, password: string) -> Promise<boolean>
+function setPassword(service: string, account: string, password: string) -> Promise<void>
 ```
