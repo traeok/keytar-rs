@@ -22,11 +22,6 @@ function isMusl() {
   }
 }
 
-let config;
-if (process.env.KTRS_CONFIG != null && existsSync(process.env.KTRS_CONFIG)) {
-  config = JSON.parse(readFileSync(process.env.KTRS_CONFIG));
-}
-
 let pwStore;
 if (process.env.KTRS_KEY_PATH != null) {
   pwStore = new PasswordStore(process.env.KTRS_KEY_PATH);
