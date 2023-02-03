@@ -81,6 +81,7 @@ __metadata:
   dependencies:
     "@napi-rs/cli": ^2.13.0
     ava: ^4.3.3
+    node-password-store: "https://github.com/t1m0thyj/node-password-store/releases/download/v1.0.0-alpha/password-store-1.0.0-alpha.tgz"
   languageName: unknown
   linkType: soft
 
@@ -322,6 +323,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"bn@npm:^1.0.4, bn@npm:^1.0.5":
+  version: 1.0.5
+  resolution: "bn@npm:1.0.5"
+  checksum: cbbc8c8c1b7fd459882b7927255cf509c8330548dc329be04137374af072a36a5e0a4bab27fff7eea13c0d227bfeeec42fd20f30aa3b5430c12cc02116d421a5
+  languageName: node
+  linkType: hard
+
 "brace-expansion@npm:^1.1.7":
   version: 1.1.11
   resolution: "brace-expansion@npm:1.1.11"
@@ -350,6 +358,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"bzip-deflate@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "bzip-deflate@npm:1.0.0"
+  checksum: 95ae6297c6848909f76b4670b385e427b07815347519520633d350aec4300bfc791ac8d0e413af080a1518cd8af23c509ecc5cfa56c9afe48f564c2af3ff5db1
+  languageName: node
+  linkType: hard
+
 "cacache@npm:^16.1.0":
   version: 16.1.3
   resolution: "cacache@npm:16.1.3"
@@ -373,6 +388,16 @@ __metadata:
     tar: ^6.1.11
     unique-filename: ^2.0.0
   checksum: d91409e6e57d7d9a3a25e5dcc589c84e75b178ae8ea7de05cbf6b783f77a5fae938f6e8fda6f5257ed70000be27a681e1e44829251bfffe4c10216002f8f14e6
+  languageName: node
+  linkType: hard
+
+"call-bind@npm:^1.0.2":
+  version: 1.0.2
+  resolution: "call-bind@npm:1.0.2"
+  dependencies:
+    function-bind: ^1.1.1
+    get-intrinsic: ^1.0.2
+  checksum: f8e31de9d19988a4b80f3e704788c4a2d6b6f3d17cfec4f57dc29ced450c53a49270dc66bf0fbd693329ee948dd33e6c90a329519aef17474a4d961e8d6426b0
   languageName: node
   linkType: hard
 
@@ -598,6 +623,30 @@ __metadata:
   languageName: node
   linkType: hard
 
+"deep-equal@npm:^1.1.0":
+  version: 1.1.1
+  resolution: "deep-equal@npm:1.1.1"
+  dependencies:
+    is-arguments: ^1.0.4
+    is-date-object: ^1.0.1
+    is-regex: ^1.0.4
+    object-is: ^1.0.1
+    object-keys: ^1.1.1
+    regexp.prototype.flags: ^1.2.0
+  checksum: f92686f2c5bcdf714a75a5fa7a9e47cb374a8ec9307e717b8d1ce61f56a75aaebf5619c2a12b8087a705b5a2f60d0292c35f8b58cb1f72e3268a3a15cab9f78d
+  languageName: node
+  linkType: hard
+
+"define-properties@npm:^1.1.3":
+  version: 1.1.4
+  resolution: "define-properties@npm:1.1.4"
+  dependencies:
+    has-property-descriptors: ^1.0.0
+    object-keys: ^1.1.1
+  checksum: ce0aef3f9eb193562b5cfb79b2d2c86b6a109dfc9fdcb5f45d680631a1a908c06824ddcdb72b7573b54e26ace07f0a23420aaba0d5c627b34d2c1de8ef527e2b
+  languageName: node
+  linkType: hard
+
 "del@npm:^6.1.1":
   version: 6.1.1
   resolution: "del@npm:6.1.1"
@@ -819,6 +868,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"function-bind@npm:^1.1.1":
+  version: 1.1.1
+  resolution: "function-bind@npm:1.1.1"
+  checksum: b32fbaebb3f8ec4969f033073b43f5c8befbb58f1a79e12f1d7490358150359ebd92f49e72ff0144f65f2c48ea2a605bff2d07965f548f6474fd8efd95bf361a
+  languageName: node
+  linkType: hard
+
+"functions-have-names@npm:^1.2.2":
+  version: 1.2.3
+  resolution: "functions-have-names@npm:1.2.3"
+  checksum: c3f1f5ba20f4e962efb71344ce0a40722163e85bee2101ce25f88214e78182d2d2476aa85ef37950c579eb6cf6ee811c17b3101bb84004bb75655f3e33f3fdb5
+  languageName: node
+  linkType: hard
+
 "gauge@npm:^4.0.3":
   version: 4.0.4
   resolution: "gauge@npm:4.0.4"
@@ -839,6 +902,17 @@ __metadata:
   version: 2.0.5
   resolution: "get-caller-file@npm:2.0.5"
   checksum: b9769a836d2a98c3ee734a88ba712e62703f1df31b94b784762c433c27a386dd6029ff55c2a920c392e33657d80191edbf18c61487e198844844516f843496b9
+  languageName: node
+  linkType: hard
+
+"get-intrinsic@npm:^1.0.2, get-intrinsic@npm:^1.1.1":
+  version: 1.2.0
+  resolution: "get-intrinsic@npm:1.2.0"
+  dependencies:
+    function-bind: ^1.1.1
+    has: ^1.0.3
+    has-symbols: ^1.0.3
+  checksum: 78fc0487b783f5c58cf2dccafc3ae656ee8d2d8062a8831ce4a95e7057af4587a1d4882246c033aca0a7b4965276f4802b45cc300338d1b77a73d3e3e3f4877d
   languageName: node
   linkType: hard
 
@@ -912,10 +986,44 @@ __metadata:
   languageName: node
   linkType: hard
 
+"has-property-descriptors@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "has-property-descriptors@npm:1.0.0"
+  dependencies:
+    get-intrinsic: ^1.1.1
+  checksum: a6d3f0a266d0294d972e354782e872e2fe1b6495b321e6ef678c9b7a06a40408a6891817350c62e752adced73a94ac903c54734fee05bf65b1905ee1368194bb
+  languageName: node
+  linkType: hard
+
+"has-symbols@npm:^1.0.2, has-symbols@npm:^1.0.3":
+  version: 1.0.3
+  resolution: "has-symbols@npm:1.0.3"
+  checksum: a054c40c631c0d5741a8285010a0777ea0c068f99ed43e5d6eb12972da223f8af553a455132fdb0801bdcfa0e0f443c0c03a68d8555aa529b3144b446c3f2410
+  languageName: node
+  linkType: hard
+
+"has-tostringtag@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "has-tostringtag@npm:1.0.0"
+  dependencies:
+    has-symbols: ^1.0.2
+  checksum: cc12eb28cb6ae22369ebaad3a8ab0799ed61270991be88f208d508076a1e99abe4198c965935ce85ea90b60c94ddda73693b0920b58e7ead048b4a391b502c1c
+  languageName: node
+  linkType: hard
+
 "has-unicode@npm:^2.0.1":
   version: 2.0.1
   resolution: "has-unicode@npm:2.0.1"
   checksum: 1eab07a7436512db0be40a710b29b5dc21fa04880b7f63c9980b706683127e3c1b57cb80ea96d47991bdae2dfe479604f6a1ba410106ee1046a41d1bd0814400
+  languageName: node
+  linkType: hard
+
+"has@npm:^1.0.3":
+  version: 1.0.3
+  resolution: "has@npm:1.0.3"
+  dependencies:
+    function-bind: ^1.1.1
+  checksum: b9ad53d53be4af90ce5d1c38331e712522417d017d5ef1ebd0507e07c2fbad8686fffb8e12ddecd4c39ca9b9b47431afbb975b8abf7f3c3b82c98e9aad052792
   languageName: node
   linkType: hard
 
@@ -953,6 +1061,29 @@ __metadata:
   dependencies:
     ms: ^2.0.0
   checksum: 9c7a74a2827f9294c009266c82031030eae811ca87b0da3dceb8d6071b9bde22c9f3daef0469c3c533cc67a97d8a167cd9fc0389350e5f415f61a79b171ded16
+  languageName: node
+  linkType: hard
+
+"iced-error@npm:0.0.13, iced-error@npm:>=0.0.8, iced-error@npm:>=0.0.9":
+  version: 0.0.13
+  resolution: "iced-error@npm:0.0.13"
+  checksum: b5829a0c6810dd8963fd5e6d3b5c152affb6c42eb10b4de8e466be757dc1ce8642dbe7a7321b1bb8ce34147b6170b2b1ea426cbd1b3dd9c79ad1bf918ff6b148
+  languageName: node
+  linkType: hard
+
+"iced-lock@npm:^1.0.1, iced-lock@npm:^1.0.2":
+  version: 1.1.0
+  resolution: "iced-lock@npm:1.1.0"
+  dependencies:
+    iced-runtime: ^1.0.0
+  checksum: f642b53a5a66c6c507220c333cbd68d602679ad0f6a31f28cf2125f383f143585b86fbb69a77066f3b7ea023a23576e0942f4428fec8d80bce048fbf74d6d383
+  languageName: node
+  linkType: hard
+
+"iced-runtime@npm:>=0.0.1, iced-runtime@npm:^1.0.0, iced-runtime@npm:^1.0.2, iced-runtime@npm:^1.0.4":
+  version: 1.0.4
+  resolution: "iced-runtime@npm:1.0.4"
+  checksum: b9497c4c6e23a8e161d26f7fb4bc071d1ddedfcf6edcb55cba5d05bb30375d27054d7ff0bfda53c9e559a15671f4941593e47e36087265c19e483f04cff774cc
   languageName: node
   linkType: hard
 
@@ -1038,12 +1169,31 @@ __metadata:
   languageName: node
   linkType: hard
 
+"is-arguments@npm:^1.0.4":
+  version: 1.1.1
+  resolution: "is-arguments@npm:1.1.1"
+  dependencies:
+    call-bind: ^1.0.2
+    has-tostringtag: ^1.0.0
+  checksum: 7f02700ec2171b691ef3e4d0e3e6c0ba408e8434368504bb593d0d7c891c0dbfda6d19d30808b904a6cb1929bca648c061ba438c39f296c2a8ca083229c49f27
+  languageName: node
+  linkType: hard
+
 "is-binary-path@npm:~2.1.0":
   version: 2.1.0
   resolution: "is-binary-path@npm:2.1.0"
   dependencies:
     binary-extensions: ^2.0.0
   checksum: 84192eb88cff70d320426f35ecd63c3d6d495da9d805b19bc65b518984b7c0760280e57dbf119b7e9be6b161784a5a673ab2c6abe83abb5198a432232ad5b35c
+  languageName: node
+  linkType: hard
+
+"is-date-object@npm:^1.0.1":
+  version: 1.0.5
+  resolution: "is-date-object@npm:1.0.5"
+  dependencies:
+    has-tostringtag: ^1.0.0
+  checksum: baa9077cdf15eb7b58c79398604ca57379b2fc4cf9aa7a9b9e295278648f628c9b201400c01c5e0f7afae56507d741185730307cbe7cad3b9f90a77e5ee342fc
   languageName: node
   linkType: hard
 
@@ -1126,6 +1276,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"is-regex@npm:^1.0.4":
+  version: 1.1.4
+  resolution: "is-regex@npm:1.1.4"
+  dependencies:
+    call-bind: ^1.0.2
+    has-tostringtag: ^1.0.0
+  checksum: 362399b33535bc8f386d96c45c9feb04cf7f8b41c182f54174c1a45c9abbbe5e31290bbad09a458583ff6bf3b2048672cdb1881b13289569a7c548370856a652
+  languageName: node
+  linkType: hard
+
 "is-unicode-supported@npm:^1.2.0":
   version: 1.3.0
   resolution: "is-unicode-supported@npm:1.3.0"
@@ -1156,6 +1316,47 @@ __metadata:
   bin:
     js-yaml: bin/js-yaml.js
   checksum: bef146085f472d44dee30ec34e5cf36bf89164f5d585435a3d3da89e52622dff0b188a580e4ad091c3341889e14cb88cac6e4deb16dc5b1e9623bb0601fc255c
+  languageName: node
+  linkType: hard
+
+"kbpgp@npm:2.1.15":
+  version: 2.1.15
+  resolution: "kbpgp@npm:2.1.15"
+  dependencies:
+    bn: ^1.0.5
+    bzip-deflate: ^1.0.0
+    deep-equal: ^1.1.0
+    iced-error: 0.0.13
+    iced-lock: ^1.0.2
+    iced-runtime: ^1.0.4
+    keybase-ecurve: ^1.0.1
+    keybase-nacl: ^1.1.2
+    minimist: ^1.2.0
+    pgp-utils: 0.0.35
+    purepack: ^1.0.5
+    triplesec: ^4.0.3
+    tweetnacl: ^0.13.1
+  checksum: 5900800af8da43be72dafaae3b4e3fb754032c8e989e95ee6c25837367c3c6e658009bdc3bd5f3e85e1433c89e1549a8441bb22d7a53d3ed8d28ff799043c175
+  languageName: node
+  linkType: hard
+
+"keybase-ecurve@npm:^1.0.1":
+  version: 1.0.1
+  resolution: "keybase-ecurve@npm:1.0.1"
+  dependencies:
+    bn: ^1.0.4
+  checksum: 3f0df339201bfb11001845476f60a17122f647a1cca79323eacd8ffc880f55fef996fc13a7b93c6d3f15b0de3ecf56d15ec2cbd18cc356a18edda01a85343181
+  languageName: node
+  linkType: hard
+
+"keybase-nacl@npm:^1.1.2":
+  version: 1.1.4
+  resolution: "keybase-nacl@npm:1.1.4"
+  dependencies:
+    iced-runtime: ^1.0.2
+    tweetnacl: ^0.13.1
+    uint64be: ^1.0.1
+  checksum: 22950655a1e7ca61bdf04f85c144317ed13aea99703d649169553f95b81f557fc5f832197636202a46c877aba551ac77f42f9f2ca495a162431c121d991a2eef
   languageName: node
   linkType: hard
 
@@ -1301,6 +1502,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"minimist@npm:^1.2.0":
+  version: 1.2.7
+  resolution: "minimist@npm:1.2.7"
+  checksum: 7346574a1038ca23c32e02252f603801f09384dd1d78b69a943a4e8c2c28730b80e96193882d3d3b22a063445f460e48316b29b8a25addca2d7e5e8f75478bec
+  languageName: node
+  linkType: hard
+
 "minipass-collect@npm:^1.0.2":
   version: 1.0.2
   resolution: "minipass-collect@npm:1.0.2"
@@ -1380,6 +1588,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"more-entropy@npm:>=0.0.7":
+  version: 0.0.7
+  resolution: "more-entropy@npm:0.0.7"
+  dependencies:
+    iced-runtime: ">=0.0.1"
+  checksum: c3fc40748199bf95885878cbf49be5d331047d51ecb65f7e636a5c586d519bec004133c9b3c9851ae3da70d59efc2c541970fa6b6d3c3dae31199b4e8193ec17
+  languageName: node
+  linkType: hard
+
 "ms@npm:2.1.2":
   version: 2.1.2
   resolution: "ms@npm:2.1.2"
@@ -1421,6 +1638,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"node-password-store@https://github.com/t1m0thyj/node-password-store/releases/download/v1.0.0-alpha/password-store-1.0.0-alpha.tgz":
+  version: 1.0.0-alpha
+  resolution: "node-password-store@https://github.com/t1m0thyj/node-password-store/releases/download/v1.0.0-alpha/password-store-1.0.0-alpha.tgz"
+  dependencies:
+    kbpgp: 2.1.15
+  checksum: 7e22cf59e01dd219b1ed400b974027baf8ebbd2d7175aeb1e482bcf86ef3b4b861ed75a9f3f395f8fc7296ad0febe5331e6e46dfbb3eff0cd19178d9bf1fd999
+  languageName: node
+  linkType: hard
+
 "nofilter@npm:^3.1.0":
   version: 3.1.0
   resolution: "nofilter@npm:3.1.0"
@@ -1455,6 +1681,23 @@ __metadata:
     gauge: ^4.0.3
     set-blocking: ^2.0.0
   checksum: ae238cd264a1c3f22091cdd9e2b106f684297d3c184f1146984ecbe18aaa86343953f26b9520dedd1b1372bc0316905b736c1932d778dbeb1fcf5a1001390e2a
+  languageName: node
+  linkType: hard
+
+"object-is@npm:^1.0.1":
+  version: 1.1.5
+  resolution: "object-is@npm:1.1.5"
+  dependencies:
+    call-bind: ^1.0.2
+    define-properties: ^1.1.3
+  checksum: 989b18c4cba258a6b74dc1d74a41805c1a1425bce29f6cabb50dcb1a6a651ea9104a1b07046739a49a5bb1bc49727bcb00efd5c55f932f6ea04ec8927a7901fe
+  languageName: node
+  linkType: hard
+
+"object-keys@npm:^1.1.1":
+  version: 1.1.1
+  resolution: "object-keys@npm:1.1.1"
+  checksum: b363c5e7644b1e1b04aa507e88dcb8e3a2f52b6ffd0ea801e4c7a62d5aa559affe21c55a07fd4b1fd55fc03a33c610d73426664b20032405d7b92a1414c34d6a
   languageName: node
   linkType: hard
 
@@ -1554,6 +1797,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"pgp-utils@npm:0.0.35":
+  version: 0.0.35
+  resolution: "pgp-utils@npm:0.0.35"
+  dependencies:
+    iced-error: ">=0.0.8"
+    iced-runtime: ">=0.0.1"
+  checksum: 17bae0b86173ed616348ebd600a2cccd1e238ec1ac3ac9b2a76b24a7a782011e588ae4ab4676ad124d1af9c5008eff943b541f9d905c69d1e28e4931c9d67fb2
+  languageName: node
+  linkType: hard
+
 "picomatch@npm:^2.0.4, picomatch@npm:^2.2.1, picomatch@npm:^2.3.1":
   version: 2.3.1
   resolution: "picomatch@npm:2.3.1"
@@ -1589,6 +1842,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"progress@npm:~1.1.2":
+  version: 1.1.8
+  resolution: "progress@npm:1.1.8"
+  checksum: 789c824156e03a7353b190fc63da46bc42b210250cebaa2dca447a6a740f5469f34ed30f768cdef088ca720a8c3c42dd743958e8bc6a35b2d2a1a83171ad2c56
+  languageName: node
+  linkType: hard
+
 "promise-inflight@npm:^1.0.1":
   version: 1.0.1
   resolution: "promise-inflight@npm:1.0.1"
@@ -1603,6 +1863,13 @@ __metadata:
     err-code: ^2.0.2
     retry: ^0.12.0
   checksum: f96a3f6d90b92b568a26f71e966cbbc0f63ab85ea6ff6c81284dc869b41510e6cdef99b6b65f9030f0db422bf7c96652a3fff9f2e8fb4a0f069d8f4430359429
+  languageName: node
+  linkType: hard
+
+"purepack@npm:^1.0.5":
+  version: 1.0.6
+  resolution: "purepack@npm:1.0.6"
+  checksum: f04d81666662f51e821240dd8338bd74859adf9b9c05f300cd6c8b908ccfcbdba63a3d1f9628126f8c5d734836231813e5e628418a018b30c4409e64ad5cbb8e
   languageName: node
   linkType: hard
 
@@ -1630,6 +1897,17 @@ __metadata:
   dependencies:
     picomatch: ^2.2.1
   checksum: 1ced032e6e45670b6d7352d71d21ce7edf7b9b928494dcaba6f11fba63180d9da6cd7061ebc34175ffda6ff529f481818c962952004d273178acd70f7059b320
+  languageName: node
+  linkType: hard
+
+"regexp.prototype.flags@npm:^1.2.0":
+  version: 1.4.3
+  resolution: "regexp.prototype.flags@npm:1.4.3"
+  dependencies:
+    call-bind: ^1.0.2
+    define-properties: ^1.1.3
+    functions-have-names: ^1.2.2
+  checksum: 51228bae732592adb3ededd5e15426be25f289e9c4ef15212f4da73f4ec3919b6140806374b8894036a86020d054a8d2657d3fee6bb9b4d35d8939c20030b7a6
   languageName: node
   linkType: hard
 
@@ -1913,10 +2191,47 @@ __metadata:
   languageName: node
   linkType: hard
 
+"triplesec@npm:^4.0.3":
+  version: 4.0.3
+  resolution: "triplesec@npm:4.0.3"
+  dependencies:
+    iced-error: ">=0.0.9"
+    iced-lock: ^1.0.1
+    iced-runtime: ^1.0.2
+    more-entropy: ">=0.0.7"
+    progress: ~1.1.2
+    uglify-js: ^3.1.9
+  checksum: ab0c2fe6c8a98fe7ca292958de71e7ac20f0feb68b92984aed16ea4d01ccc0fcf1754aa98d1dec7a209e306e78d352783116cdae4913d14bde58c385bec6e15e
+  languageName: node
+  linkType: hard
+
+"tweetnacl@npm:^0.13.1":
+  version: 0.13.3
+  resolution: "tweetnacl@npm:0.13.3"
+  checksum: 57c1a72bdc78fcd071fcd5f5f9dfa8e0c6f59cafaa29cdafa8d07ec1693b43e5f0433b8f32df4f4a3e414064d7d6953a994eba28309b0ac2032770b4fb363814
+  languageName: node
+  linkType: hard
+
 "type-fest@npm:^0.13.1":
   version: 0.13.1
   resolution: "type-fest@npm:0.13.1"
   checksum: e6bf2e3c449f27d4ef5d56faf8b86feafbc3aec3025fc9a5fbe2db0a2587c44714521f9c30d8516a833c8c506d6263f5cc11267522b10c6ccdb6cc55b0a9d1c4
+  languageName: node
+  linkType: hard
+
+"uglify-js@npm:^3.1.9":
+  version: 3.17.4
+  resolution: "uglify-js@npm:3.17.4"
+  bin:
+    uglifyjs: bin/uglifyjs
+  checksum: 7b3897df38b6fc7d7d9f4dcd658599d81aa2b1fb0d074829dd4e5290f7318dbca1f4af2f45acb833b95b1fe0ed4698662ab61b87e94328eb4c0a0d3435baf924
+  languageName: node
+  linkType: hard
+
+"uint64be@npm:^1.0.1":
+  version: 1.0.1
+  resolution: "uint64be@npm:1.0.1"
+  checksum: 24192133845f62b687b421623e747039133769cc3cec3f9938c8fe7f155894cf1caf111002aa391a323cb06eda50d73e3399ae099788aa6d2a82cebeda6002ca
   languageName: node
   linkType: hard
 

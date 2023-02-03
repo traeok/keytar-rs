@@ -15,17 +15,17 @@ fn find_credentials(service: String) -> AsyncTask<FindCredentials> {
   AsyncTask::new(FindCredentials { service })
 }
 
-#[napi]
+#[napi(ts_return_type="Promise<string | null>")]
 fn find_password(service: String) -> AsyncTask<FindPassword> {
   AsyncTask::new(FindPassword { service })
 }
 
-#[napi]
+#[napi(ts_return_type="Promise<string | null>")]
 fn get_password(service: String, account: String) -> AsyncTask<GetPassword> {
   AsyncTask::new(GetPassword { service, account })
 }
 
-#[napi]
+#[napi(ts_return_type="Promise<void>")]
 fn set_password(service: String, account: String, password: String) -> AsyncTask<SetPassword> {
   AsyncTask::new(SetPassword {
     service,

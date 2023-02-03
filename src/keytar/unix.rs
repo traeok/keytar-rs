@@ -37,22 +37,22 @@ pub fn set_password(
   }
 }
 
-pub fn get_password(service: &String, account: &String) -> Result<String, KeytarError> {
+pub fn get_password(service: &String, account: &String) -> Result<Option<String>, KeytarError> {
   let ss = SecretService::new(EncryptionType::Dh)?;
 
   match ss.search_items(vec![("service", service), ("account", account)]) {
     Ok(item) => match item.get(0) {
       Some(it) => {
         let bytes = it.get_secret()?;
-        return Ok(String::from_utf8(bytes)?);
+        return Ok(Some(String::from_utf8(bytes)?));
       }
-      None => Err(KeytarError::NotFound),
+      None => Ok(None),
     },
     Err(err) => Err(KeytarError::from(err)),
   }
 }
 
-pub fn find_password(service: &String) -> Result<String, KeytarError> {
+pub fn find_password(service: &String) -> Result<Option<String>, KeytarError> {
   let ss = SecretService::new(EncryptionType::Dh)?;
 
   let collection = ss.get_default_collection()?;
@@ -63,11 +63,11 @@ pub fn find_password(service: &String) -> Result<String, KeytarError> {
     if label.contains(service) {
       let bytes = item.get_secret()?;
       let pw = String::from_utf8(bytes)?;
-      return Ok(pw);
+      return Ok(Some(pw));
     }
   }
 
-  Ok(String::default())
+  Ok(None)
 }
 
 pub fn delete_password(service: &String, account: &String) -> Result<bool, KeytarError> {

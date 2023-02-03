@@ -27,14 +27,14 @@ pub fn set_password(
   }
 }
 
-pub fn get_password(service: &String, account: &String) -> Result<String, KeytarError> {
+pub fn get_password(service: &String, account: &String) -> Result<Option<String>, KeytarError> {
   match get_generic_password(service.as_str(), account.as_str()) {
-    Ok(bytes) => Ok(String::from_utf8(bytes)?),
+    Ok(bytes) => Ok(Some(String::from_utf8(bytes)?)),
     Err(err) => Err(KeytarError::from(err)),
   }
 }
 
-pub fn find_password(service: &String) -> Result<String, KeytarError> {
+pub fn find_password(service: &String) -> Result<Option<String>, KeytarError> {
   let cred_attrs: Vec<&str> = service.split("/").collect();
   if cred_attrs.len() < 2 {
     return Err(KeytarError::InvalidArg {
@@ -46,7 +46,7 @@ pub fn find_password(service: &String) -> Result<String, KeytarError> {
   match find_generic_password(None, cred_attrs[0], cred_attrs[1]) {
     Ok((pw, item)) => {
       let pw_str = String::from_utf8(pw.to_owned())?;
-      return Ok(pw_str);
+      return Ok(Some(pw_str));
     }
     Err(err) => Err(KeytarError::from(err)),
   }
