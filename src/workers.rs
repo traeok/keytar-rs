@@ -1,4 +1,4 @@
-use napi::{Env, Error, JsBoolean, JsString, Result, Task, JsUnknown, JsNull};
+use napi::{Env, Error, JsBoolean, Result, Task, JsUnknown};
 use napi_derive::napi;
 
 use crate::keytar;
@@ -47,10 +47,10 @@ impl Task for GetPassword {
   }
 
   fn resolve(&mut self, env: Env, output: Self::Output) -> Result<Self::JsValue> {
-    return Ok(match output {
+    Ok(match output {
       Some(pw) => env.create_string(pw.as_str())?.into_unknown(),
       None => env.get_null()?.into_unknown()
-    });
+    })
   }
 
   fn reject(&mut self, _env: Env, err: Error) -> Result<Self::JsValue> {
@@ -70,7 +70,7 @@ impl Task for SetPassword {
     }
   }
 
-  fn resolve(&mut self, env: Env, output: Self::Output) -> Result<Self::JsValue> {
+  fn resolve(&mut self, env: Env, _output: Self::Output) -> Result<Self::JsValue> {
     Ok(env.get_null()?.into_unknown())
   }
 
@@ -143,10 +143,10 @@ impl Task for FindPassword {
   }
 
   fn resolve(&mut self, env: Env, output: Self::Output) -> Result<Self::JsValue> {
-    return Ok(match output {
+    Ok(match output {
       Some(pw) => env.create_string(pw.as_str())?.into_unknown(),
       None => env.get_null()?.into_unknown()
-    });
+    })
   }
 
   fn reject(&mut self, _env: Env, err: Error) -> Result<Self::JsValue> {

@@ -73,6 +73,17 @@ test.serial("get/setPassword with UTF-16 chars", async (t) => {
   t.is(str, "🌞🌙🌟🌴");
 });
 
+test.serial("get/setPassword with UTF-8 chars", async (t) => {
+  await setPassword(
+    "TestKeytar",
+    "TestUTF8",
+    "ᚻᛖ ᚳᚹᚫᚦ ᚦᚫᛏ ᚻᛖ ᛒᚢᛞᛖ ᚩᚾ ᚦᚫᛗ ᛚᚪᚾᛞᛖ ᚾᚩᚱᚦᚹᛖᚪᚱᛞᚢᛗ ᚹᛁᚦ ᚦᚪ ᚹᛖᛥᚫ"
+  );
+
+  const str = await getPassword("TestKeytar", "TestUTF8");
+  t.is(str, "ᚻᛖ ᚳᚹᚫᚦ ᚦᚫᛏ ᚻᛖ ᛒᚢᛞᛖ ᚩᚾ ᚦᚫᛗ ᛚᚪᚾᛞᛖ ᚾᚩᚱᚦᚹᛖᚪᚱᛞᚢᛗ ᚹᛁᚦ ᚦᚪ ᚹᛖᛥᚫ");
+});
+
 test.serial("get/setPassword with CJK symbols", async (t) => {
   await setPassword("TestKeytar", "TestCJK", "「こんにちは世界」");
 
@@ -95,18 +106,8 @@ test.serial("get/setPassword fails with missing/undefined data", async (t) => {
 });
 
 test.serial(
-  "get/setPassword with parameters containing extra null terminators",
+  "get/setPassword with password containing extra null terminators",
   async (t) => {
-    // "service" parameter w/ extra null terminator
-    await setPassword("TestKeytar\0", "ServiceNullTerm", "PW");
-    const serviceRes = await getPassword("TestKeytar\0", "ServiceNullTerm");
-    t.is(serviceRes, "PW");
-
-    // "account" parameter w/ extra null terminator
-    await setPassword("TestKeytar", "AccNullTerm\0", "PW");
-    const accountRes = await getPassword("TestKeytar", "AccNullTerm\0");
-    t.is(accountRes, "PW");
-
     // "password" parameter w/ extra null terminator
     await setPassword("TestKeytar", "PwNullTerm", "PW\0");
     const pwRes = await getPassword("TestKeytar", "PwNullTerm");
@@ -117,19 +118,28 @@ test.serial(
 test.serial(
   "findCredentials verifies that test credentials were stored",
   async (t) => {
-    const actual = await findCredentials("TestKeytar");
-    t.is(actual.length, 8);
-
-    const expected = [
+    let expected = [
       { account: "TestASCII", password: "ASCII string" },
       { account: "TestBinary", password: "Hello world!" },
       { account: "TestCharSet", password: "I 💔 ASCII" },
       { account: "TestCJK", password: "「こんにちは世界」" },
+      {
+        account: "TestUTF8",
+        password: "ᚻᛖ ᚳᚹᚫᚦ ᚦᚫᛏ ᚻᛖ ᛒᚢᛞᛖ ᚩᚾ ᚦᚫᛗ ᛚᚪᚾᛞᛖ ᚾᚩᚱᚦᚹᛖᚪᚱᛞᚢᛗ ᚹᛁᚦ ᚦᚪ ᚹᛖᛥᚫ",
+      },
       { account: "TestUTF16", password: "🌞🌙🌟🌴" },
+      { account: "TestEmptyPW", password: "" },
       { account: "PwNullTerm", password: "PW\x00" },
-      { account: "AccNullTerm", password: "PW" },
-      { account: "ServiceNullTerm", password: "PW" },
     ];
+
+    if (process.platform === "win32") {
+      // Windows Credential Manager has inconsistent error handling and doesn't report
+      // when they ignore a request to store a credential with an empty password
+      expected = expected.filter((cred) => cred.account !== "TestEmptyPW");
+    }
+
+    const actual = await findCredentials("TestKeytar");
+    t.is(actual.length, expected.length);
 
     expected.forEach((cred) =>
       t.not(

@@ -14,8 +14,10 @@ pub fn set_password(
   account: &String,
   password: &mut String,
 ) -> Result<bool, KeytarError> {
-  let mut cred: CREDENTIALW = CREDENTIALW::default();
-  cred.Type = CRED_TYPE_GENERIC;
+  let mut cred = CREDENTIALW {
+    Type: CRED_TYPE_GENERIC,
+    ..Default::default()
+  };
 
   // Build WinAPI strings and object parameters from arguments
   let mut target_bytes: Vec<u16> = format!("{}/{}", service, account).encode_utf16().collect();
