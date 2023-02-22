@@ -31,7 +31,7 @@ jobs:
           - host: windows-latest
             build: |
               yarn build --target i686-pc-windows-msvc
-              yarn test && yarn test:find && yarn test:delete
+              yarn test
             target: i686-pc-windows-msvc
           - host: ubuntu-latest
             target: x86_64-unknown-linux-gnu
@@ -182,7 +182,7 @@ jobs:
             yarn install
             yarn build
             strip -x *.node
-            yarn test && yarn test:find && yarn test:delete
+            yarn test
             rm -rf node_modules
             rm -rf target
       - name: Upload artifact
@@ -230,7 +230,7 @@ jobs:
         run: ls -R .
         shell: bash
       - name: Test bindings
-        run: yarn test && yarn test:find && yarn test:delete
+        run: yarn test
   test-linux-x64-gnu-binding:
     name: Test bindings on Linux-x64-gnu - node@${{ matrix.node }}
     needs:
