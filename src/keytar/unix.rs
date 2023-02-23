@@ -29,7 +29,7 @@ pub fn set_password(
     format!("{}/{}", service, account).as_str(),
     properties,
     password.as_bytes(),
-    false,
+    true,
     "text/plain",
   ) {
     Ok(_item) => Ok(true),
@@ -48,7 +48,10 @@ pub fn get_password(service: &String, account: &String) -> Result<Option<String>
       }
       None => Ok(None),
     },
-    Err(err) => Err(KeytarError::from(err)),
+    Err(err) => match err {
+      secret_service::Error::NoResult => Ok(None),
+      _ => Err(KeytarError::from(err)),
+    }
   }
 }
 
@@ -79,9 +82,12 @@ pub fn delete_password(service: &String, account: &String) -> Result<bool, Keyta
         it.delete()?;
         return Ok(true);
       }
-      None => Err(KeytarError::NotFound),
+      None => Ok(false),
     },
-    Err(err) => Err(KeytarError::from(err)),
+    Err(err) => match err {
+      secret_service::Error::NoResult => Ok(false),
+      _ => Err(KeytarError::from(err)),
+    }
   }
 }
 
