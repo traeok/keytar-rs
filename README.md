@@ -2,6 +2,8 @@
 
 keytar-rs is a native Node.js module for accessing and managing OS credential storage. It is a Rust approach to the npm library [node-keytar](https://github.com/atom/node-keytar).
 
+![keytar-rs demo](./DEMO.svg)
+
 ## Compatibility
 
 <table>
