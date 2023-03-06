@@ -99,8 +99,8 @@ keytar-rs is a native Node.js module for accessing and managing OS credential st
         <td>✓*</td>
     </tr>
     <tr>
-        <td><i>zLinux</i></td>
-        <td><i>s390x</i></td>
+        <td><b>zLinux</b></td>
+        <td>s390x</td>
         <td>✓*</td>
         <td>✓*</td>
         <td>✓*</td>
