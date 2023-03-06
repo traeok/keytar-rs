@@ -93,12 +93,21 @@ keytar-rs is a native Node.js module for accessing and managing OS credential st
     <tr>
         <td><b>FreeBSD</b></td>
         <td>x64</td>
-        <td colspan="4">⌛ <i>resolving some issues</i></td>
+        <td>✓*</td>
+        <td>✓*</td>
+        <td>✓*</td>
+        <td>✓*</td>
     </tr>
     <tr>
         <td><i>zLinux</i></td>
         <td><i>s390x</i></td>
-        <td colspan="4"><i>💭 Not yet implemented</i></td>
+        <td>✓*</td>
+        <td>✓*</td>
+        <td>✓*</td>
+        <td>✓*</td>
+    </tr>
+    <tr>
+        <td colspan="6"><i>*Using node-password-store fallback</i></td>
     </tr>
 </table>
 
