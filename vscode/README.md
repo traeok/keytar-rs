@@ -1,4 +1,4 @@
-## Keytar VSCode extension
+# Keytar VSCode extension
 
 This test VS Code extension lets you test 4 credential providers:
 * VSCode Keytar - the Keytar shim in VSCode that will be removed in Aug 2023

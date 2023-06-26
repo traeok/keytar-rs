@@ -1182,14 +1182,14 @@ __metadata:
 
 "keytar-cli@file:cli::locator=%40traeok%2Fkeytar-rs%40workspace%3A.":
   version: 1.0.0
-  resolution: "keytar-cli@file:cli#cli::hash=234f37&locator=%40traeok%2Fkeytar-rs%40workspace%3A."
+  resolution: "keytar-cli@file:cli#cli::hash=8c85ce&locator=%40traeok%2Fkeytar-rs%40workspace%3A."
   dependencies:
     minimist: ^1.2.5
     password-prompt: ^1.0.4
     yesno: ^0.3.1
   bin:
     keytar: ./index.js
-  checksum: 1eb3d23d54a9593ce4ceb647eb2a96e35e8267d0299b687d6559f590d984ea897a11ffddf45bae38859232ecdeaef02a2d587b71d586de3a9bff6aac37bee37c
+  checksum: fe9dbf29486d599bd73e8a781f3fc4728242b74301599d9dede69a811d265864e29cbfed38edf8c25a089a5904712a44bdb962d93caa401efad00c09547a8f93
   languageName: node
   linkType: hard
 
