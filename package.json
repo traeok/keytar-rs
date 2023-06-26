@@ -17,7 +17,8 @@
   "license": "MIT",
   "devDependencies": {
     "@napi-rs/cli": "^2.13.0",
-    "ava": "^4.3.3"
+    "ava": "^4.3.3",
+    "keytar-cli": "file:cli"
   },
   "ava": {
     "timeout": "3m"

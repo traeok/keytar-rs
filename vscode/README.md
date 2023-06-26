@@ -1,3 +1,11 @@
+## Keytar VSCode extension
+
+This test VS Code extension lets you test 4 credential providers:
+* VSCode Keytar - the Keytar shim in VSCode that will be removed in Aug 2023
+* Bundled Keytar - the Node.js Keytar package bundled into the extension
+* Bundled Keytar-RS - the rewrite of Keytar in Rust bundled into the extension
+* Secret Storage - the new secret storage API that VSCode is recommending
+
 ## Testing
 
 1. Clone the `keytar-rs` repo
@@ -9,3 +17,5 @@
   * Keytar: Get Password
   * Keytar: Set Password
   * Keytar: Delete Password
+
+**Note:** The extension tries to create a secret called "Zowe/test_secret", so it should be visible under that name in Windows Credential Manager or macOS Keychain.
