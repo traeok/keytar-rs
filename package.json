@@ -35,8 +35,5 @@
     "test": "ava",
     "version": "napi version"
   },
-  "packageManager": "yarn@3.3.0",
-  "dependencies": {
-    "node-password-store": "https://github.com/t1m0thyj/node-password-store/releases/download/v1.0.0-alpha/password-store-1.0.0-alpha.tgz"
-  }
+  "packageManager": "yarn@3.3.0"
 }
