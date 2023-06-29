@@ -6,6 +6,7 @@
   "engines": {
     "vscode": "^1.78.0"
   },
+  "license": "Private",
   "categories": [
     "Other"
   ],
@@ -29,6 +30,7 @@
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
+    "vscode:build": "vsce package --yarn",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile && npm run lint",
@@ -44,6 +46,7 @@
     "@typescript-eslint/eslint-plugin": "^5.59.1",
     "@typescript-eslint/parser": "^5.59.1",
     "@vscode/test-electron": "^2.3.0",
+    "@vscode/vsce": "^2.15.0",
     "eslint": "^8.39.0",
     "glob": "^8.1.0",
     "mocha": "^10.2.0",
