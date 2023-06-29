@@ -1,6 +1,6 @@
 {
-  "name": "helloworld",
-  "displayName": "HelloWorld",
+  "name": "helloworld2",
+  "displayName": "HelloWorld2",
   "publisher": "traeok",
   "description": "",
   "version": "0.0.1",
@@ -12,25 +12,24 @@
     "Other"
   ],
   "extensionKind": [
-    "ui",
     "workspace"
   ],
   "activationEvents": [],
   "main": "./out/extension.js",
-  "api": "none",
+  "extensionDependencies": ["traeok.helloworld"],
   "contributes": {
     "commands": [
       {
-        "command": "helloworld.getPassword",
-        "title": "Keytar: Get Password"
+        "command": "helloworld2.getPassword",
+        "title": "Keytar2: Get Password"
       },
       {
-        "command": "helloworld.setPassword",
-        "title": "Keytar: Set Password"
+        "command": "helloworld2.setPassword",
+        "title": "Keytar2: Set Password"
       },
       {
-        "command": "helloworld.deletePassword",
-        "title": "Keytar: Delete Password"
+        "command": "helloworld2.deletePassword",
+        "title": "Keytar2: Delete Password"
       }
     ]
   },
@@ -44,7 +43,6 @@
     "test": "node ./out/test/runTest.js"
   },
   "devDependencies": {
-    "@napi-rs/cli": "^2.13.0",
     "@types/glob": "^8.1.0",
     "@types/mocha": "^10.0.1",
     "@types/node": "16.x",
@@ -58,8 +56,5 @@
     "mocha": "^10.2.0",
     "typescript": "^5.0.4"
   },
-  "dependencies": {
-    "@traeok/keytar-rs": "file:..",
-    "keytar": "^7.9.0"
-  }
+  "dependencies": {}
 }

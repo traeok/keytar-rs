@@ -60,6 +60,7 @@ const CREDENTIAL_PROVIDER_MAP = {
 };
 const TEST_SERVICE = "Zowe";
 const TEST_ACCOUNT = "test_secret";
+let OUR_CONTEXT: vscode.ExtensionContext;
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -67,58 +68,24 @@ export function activate(context: vscode.ExtensionContext) {
 
 	// Use the console to output diagnostic information (console.log) and errors (console.error)
 	// This line of code will only be executed once when your extension is activated
+	OUR_CONTEXT = context;
 	console.log('Congratulations, your extension "helloworld" is now active!');
 
 	// The command has been defined in the package.json file
 	// Now provide the implementation of the command with registerCommand
 	// The commandId parameter must match the command field in package.json
 	const disposables = [];
-	disposables.push(vscode.commands.registerCommand("helloworld.getPassword", () => {
-		vscode.window.showQuickPick(Object.keys(CREDENTIAL_PROVIDER_MAP),
-			{ canPickMany: false, title: "Select a credential provider" }).then(async (result) => {
-				if (result == null) return;
-				let credentialProvider: ICredentialProvider;
-				try {
-					credentialProvider = (CREDENTIAL_PROVIDER_MAP as any)[result](context);
-				} catch (err) {
-					vscode.window.showErrorMessage(`Failed to initialize ${result}: ${err}`);
-					return;
-				}
-				try {
-					const password = await credentialProvider.getPassword(TEST_SERVICE, TEST_ACCOUNT);
-					vscode.window.showInformationMessage(`${result}: ${password}`);
-				} catch (err) {
-					vscode.window.showErrorMessage(`Failed to get password: ${err}`);
-				}
-			});
-		}));
-	disposables.push(vscode.commands.registerCommand("helloworld.setPassword", () => {
-		vscode.window.showQuickPick(Object.keys(CREDENTIAL_PROVIDER_MAP),
-			{ canPickMany: false, title: "Select a credential provider" }).then(async (result) => {
-				if (result == null) return;
-				let credentialProvider: ICredentialProvider;
-				try {
-					credentialProvider = (CREDENTIAL_PROVIDER_MAP as any)[result](context);
-				} catch (err) {
-					vscode.window.showErrorMessage(`Failed to initialize ${result}: ${err}`);
-					return;
-				}
-				vscode.window.showInputBox({ title: "Enter a secret value", value: "password" }).then(async (password) => {
-					try {
-						await credentialProvider.setPassword(TEST_SERVICE, TEST_ACCOUNT, password as string);
-					} catch (err) {
-						vscode.window.showErrorMessage(`Failed to set password: ${err}`);
-					}
-			});
-		});
+	disposables.push(vscode.commands.registerCommand("helloworld.getPassword", async () => {
+		const password = await getPassword();
+		return password;
+	}));
+	disposables.push(vscode.commands.registerCommand("helloworld.setPassword", async () => {
+		const set = await setPassword();
+		return set;
 	}));
 	disposables.push(vscode.commands.registerCommand("helloworld.deletePassword", async () => {
-		try {
-			await initVscodeKeytar().deletePassword(TEST_SERVICE, TEST_ACCOUNT);
-			await initSecretStorage(context).deletePassword(TEST_SERVICE, TEST_ACCOUNT);
-		} catch (err) {
-			vscode.window.showErrorMessage(`Failed to delete password: ${err}`);
-		}
+		const deleted = await deletePassword();
+		return deleted;
 	}));
 
 	context.subscriptions.push(...disposables);
@@ -126,3 +93,68 @@ export function activate(context: vscode.ExtensionContext) {
 
 // This method is called when your extension is deactivated
 export function deactivate() {}
+
+async function deletePassword(): Promise<boolean> {
+	try {
+		await initVscodeKeytar().deletePassword(TEST_SERVICE, TEST_ACCOUNT);
+		await initSecretStorage(OUR_CONTEXT).deletePassword(TEST_SERVICE, TEST_ACCOUNT);
+		return true;
+	} catch (err) {
+		vscode.window.showErrorMessage(`Failed to delete password: ${err}`);
+		return false;
+	}
+}
+
+async function setPassword() : Promise<boolean> {
+	let error = false;
+	await vscode.window.showQuickPick(Object.keys(CREDENTIAL_PROVIDER_MAP),
+		{ canPickMany: false, title: "Select a credential provider" }).then(async (result) => {
+			if (result == null) {
+				error = true;
+				return;
+			}
+			let credentialProvider: ICredentialProvider;
+			try {
+				credentialProvider = (CREDENTIAL_PROVIDER_MAP as any)[result](OUR_CONTEXT);
+			} catch (err) {
+				vscode.window.showErrorMessage(`Failed to initialize ${result}: ${err}`);
+				error = true;
+				return;
+			}
+			await vscode.window.showInputBox({ title: "Enter a secret value", value: "password" }).then(async (password) => {
+				try {
+					await credentialProvider.setPassword(TEST_SERVICE, TEST_ACCOUNT, password as string);
+				} catch (err) {
+					vscode.window.showErrorMessage(`Failed to set password: ${err}`);
+					error = true;
+				}
+		});
+	});
+	return error;
+};
+
+async function getPassword(): Promise<string> {
+	let thepassword: string = "";
+	await vscode.window.showQuickPick(Object.keys(CREDENTIAL_PROVIDER_MAP),
+		{ canPickMany: false, title: "Select a credential provider" }).then(async (result) => {
+			if (result == null) {
+				return;
+			}
+			let credentialProvider: ICredentialProvider;
+			try {
+				credentialProvider = (CREDENTIAL_PROVIDER_MAP as any)[result](OUR_CONTEXT);
+			} catch (err) {
+				vscode.window.showErrorMessage(`Failed to initialize ${result}: ${err}`);
+				return;
+			}
+			try {
+				const password = await credentialProvider.getPassword(TEST_SERVICE, TEST_ACCOUNT);
+				vscode.window.showInformationMessage(`${result}: ${password}`);
+				thepassword = password ? password : "";
+			} catch (err) {
+				vscode.window.showErrorMessage(`Failed to get password: ${err}`);
+				return;
+			}
+	});
+	return thepassword;
+};
