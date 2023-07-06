@@ -30,6 +30,7 @@
     "build": "napi build --platform --release",
     "build:debug": "napi build --platform",
     "prepare": "napi build --platform --release",
+    "postinstall": "node -e \"if(!require('fs').existsSync('.git')) process.exit(1);\" || napi build --platform --release",
     "prepublishOnly": "napi prepublish -t npm",
     "test": "ava",
     "version": "napi version"
