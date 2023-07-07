@@ -1,0 +1,60 @@
+{
+  "name": "helloworld2",
+  "displayName": "HelloWorld2",
+  "publisher": "traeok",
+  "description": "",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.78.0"
+  },
+  "license": "Private",
+  "categories": [
+    "Other"
+  ],
+  "extensionKind": [
+    "workspace"
+  ],
+  "activationEvents": [],
+  "main": "./out/extension.js",
+  "extensionDependencies": ["traeok.helloworld"],
+  "contributes": {
+    "commands": [
+      {
+        "command": "helloworld2.getPassword",
+        "title": "Keytar2: Get Password"
+      },
+      {
+        "command": "helloworld2.setPassword",
+        "title": "Keytar2: Set Password"
+      },
+      {
+        "command": "helloworld2.deletePassword",
+        "title": "Keytar2: Delete Password"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "vscode:build": "vsce package --yarn",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js"
+  },
+  "devDependencies": {
+    "@types/glob": "^8.1.0",
+    "@types/mocha": "^10.0.1",
+    "@types/node": "16.x",
+    "@types/vscode": "^1.78.0",
+    "@typescript-eslint/eslint-plugin": "^5.59.1",
+    "@typescript-eslint/parser": "^5.59.1",
+    "@vscode/test-electron": "^2.3.0",
+    "@vscode/vsce": "^2.15.0",
+    "eslint": "^8.39.0",
+    "glob": "^8.1.0",
+    "mocha": "^10.2.0",
+    "typescript": "^5.0.4"
+  },
+  "dependencies": {}
+}

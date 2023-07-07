@@ -16,8 +16,9 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "@napi-rs/cli": "^2.13.0",
-    "ava": "^4.3.3"
+    "@napi-rs/cli": "2.13.0",
+    "ava": "^4.3.3",
+    "keytar-cli": "file:cli"
   },
   "ava": {
     "timeout": "3m"
@@ -35,5 +36,5 @@
     "test": "ava",
     "version": "napi version"
   },
-  "packageManager": "yarn@3.3.0"
+  "packageManager": "yarn@1.22.19"
 }
