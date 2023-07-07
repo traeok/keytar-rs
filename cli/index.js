@@ -27,7 +27,7 @@ Options:
         process.exit();
     }
 
-    const keytar = require("..");
+    const keytar = require(require("pkg-dir").sync());
     const command = argv._[0]?.toLowerCase();
     const service = argv._[1];
     const account = argv._[2];

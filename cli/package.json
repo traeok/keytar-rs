@@ -15,6 +15,7 @@
   "dependencies": {
     "minimist": "^1.2.5",
     "password-prompt": "^1.0.4",
+    "pkg-dir": "^5.0.0",
     "yesno": "^0.3.1"
   }
 }
