@@ -2,10 +2,12 @@ extern crate security_framework;
 use super::error::KeytarError;
 
 use security_framework::{
-  item::{ItemClass, ItemSearchOptions, Limit},
+  item::{ItemClass, ItemSearchOptions},
   os::macos::passwords::find_generic_password,
   passwords::{delete_generic_password, get_generic_password, set_generic_password},
 };
+
+const ERR_SEC_ITEM_NOT_FOUND: i32 = -25300;
 
 impl From<security_framework::base::Error> for KeytarError {
   fn from(error: security_framework::base::Error) -> Self {
@@ -55,6 +57,7 @@ pub fn find_password(service: &String) -> Result<Option<String>, KeytarError> {
 pub fn delete_password(service: &String, account: &String) -> Result<bool, KeytarError> {
   match delete_generic_password(service.as_str(), account.as_str()) {
     Ok(_) => Ok(true),
+    Err(err) if err.code() == ERR_SEC_ITEM_NOT_FOUND => Ok(false),
     Err(err) => Err(KeytarError::from(err)),
   }
 }
