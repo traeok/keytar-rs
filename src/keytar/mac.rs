@@ -32,6 +32,7 @@ pub fn set_password(
 pub fn get_password(service: &String, account: &String) -> Result<Option<String>, KeytarError> {
   match get_generic_password(service.as_str(), account.as_str()) {
     Ok(bytes) => Ok(Some(String::from_utf8(bytes)?)),
+    Err(err) if err.code() == ERR_SEC_ITEM_NOT_FOUND => Ok(None),
     Err(err) => Err(KeytarError::from(err)),
   }
 }
