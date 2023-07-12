@@ -91,7 +91,7 @@ test.serial("get/setPassword with CJK symbols", async (t) => {
   t.is(str, "「こんにちは世界」");
 });
 
-test.serial("get/setPassword fails with missing/undefined data", async (t) => {
+test.serial("get/setPassword fails with null/undefined data", async (t) => {
   try {
     await setPassword("TestKeytar", "TestNull", null);
   } catch (err) {
@@ -114,6 +114,11 @@ test.serial(
     t.is(pwRes, "PW\0");
   }
 );
+
+test.serial("getPassword with missing data", async (t) => {
+  const str = await getPassword("TestKeytar", "TestMissingPW");
+  t.is(str, null);
+});
 
 test.serial(
   "findCredentials verifies that test credentials were stored",

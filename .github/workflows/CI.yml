@@ -14,6 +14,9 @@ env:
       - .editorconfig
       - docs/**
   pull_request: null
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   build:
     strategy:
@@ -40,6 +43,14 @@ jobs:
               set -e &&
               yarn build --target x86_64-unknown-linux-gnu &&
               strip *.node
+          - host: ubuntu-latest
+            target: armv7-unknown-linux-gnueabihf
+            setup: |
+              sudo apt-get update
+              sudo apt-get install gcc-arm-linux-gnueabihf -y
+            build: |
+              yarn build --target armv7-unknown-linux-gnueabihf
+              arm-linux-gnueabihf-strip *.node
           - host: ubuntu-latest
             target: x86_64-unknown-linux-musl
             docker: ghcr.io/napi-rs/napi-rs/nodejs-rust:lts-alpine
@@ -80,15 +91,13 @@ jobs:
         uses: actions/setup-node@v3
         if: ${{ !matrix.settings.docker }}
         with:
-          node-version: 16
+          node-version: 18
           check-latest: true
           cache: yarn
       - name: Install
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@stable
         if: ${{ !matrix.settings.docker }}
         with:
-          profile: minimal
-          override: true
           toolchain: stable
           target: ${{ matrix.settings.target }}
       - name: Cache cargo
@@ -101,11 +110,10 @@ jobs:
             .cargo-cache
             target/
           key: ${{ matrix.settings.target }}-cargo-${{ matrix.settings.host }}
-      - name: Cache NPM dependencies
-        uses: actions/cache@v3
+      - uses: goto-bus-stop/setup-zig@v2
+        if: ${{ matrix.settings.target == 'armv7-unknown-linux-gnueabihf' }}
         with:
-          path: .yarn/cache
-          key: npm-cache-build-${{ matrix.settings.target }}-node@16
+          version: 0.10.1
       - name: Setup toolchain
         run: ${{ matrix.settings.setup }}
         if: ${{ matrix.settings.setup }}
@@ -120,7 +128,7 @@ jobs:
         uses: actions/setup-node@v3
         if: matrix.settings.target == 'i686-pc-windows-msvc'
         with:
-          node-version: 16
+          node-version: 18
           check-latest: true
           cache: yarn
           architecture: x86
@@ -160,11 +168,9 @@ jobs:
           usesh: true
           mem: 3000
           prepare: |
-            pkg install -y curl node16 python2
-            curl -qL https://www.npmjs.com/install.sh | sh
-            npm install --location=global --ignore-scripts yarn
+            pkg install -y -f curl node libnghttp2 npm yarn
             curl https://sh.rustup.rs -sSf --output rustup.sh
-            sh rustup.sh -y --profile minimal --default-toolchain stable
+            sh rustup.sh -y --profile minimal --default-toolchain beta
             export PATH="/usr/local/cargo/bin:$PATH"
             echo "~~~~ rustc --version ~~~~"
             rustc --version
@@ -185,6 +191,7 @@ jobs:
             yarn test
             rm -rf node_modules
             rm -rf target
+            rm -rf .yarn/cache
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
@@ -214,11 +221,6 @@ jobs:
           node-version: ${{ matrix.node }}
           check-latest: true
           cache: yarn
-      - name: Cache NPM dependencies
-        uses: actions/cache@v3
-        with:
-          path: .yarn/cache
-          key: npm-cache-test-${{ matrix.settings.target }}-${{ matrix.node }}-${{ hashFiles('yarn.lock') }}
       - name: Install dependencies
         run: yarn install
       - name: Download artifacts
@@ -251,11 +253,6 @@ jobs:
           node-version: ${{ matrix.node }}
           check-latest: true
           cache: yarn
-      - name: Cache NPM dependencies
-        uses: actions/cache@v3
-        with:
-          path: .yarn/cache
-          key: npm-cache-test-linux-x64-gnu-${{ matrix.node }}
       - name: Install dependencies
         run: yarn install
       - name: Download artifacts
@@ -295,11 +292,6 @@ jobs:
           node-version: ${{ matrix.node }}
           check-latest: true
           cache: yarn
-      - name: Cache NPM dependencies
-        uses: actions/cache@v3
-        with:
-          path: .yarn/cache
-          key: npm-cache-test-x86_64-unknown-linux-musl-${{ matrix.node }}
       - name: Install dependencies
         run: |
           yarn config set supportedArchitectures.libc "musl"
@@ -334,7 +326,6 @@ jobs:
           - '18'
     runs-on: ubuntu-latest
     steps:
-      - run: docker run --rm --privileged multiarch/qemu-user-static:register --reset
       - uses: actions/checkout@v3
       - name: Download artifacts
         uses: actions/download-artifact@v3
@@ -344,16 +335,16 @@ jobs:
       - name: List packages
         run: ls -R .
         shell: bash
-      - name: Cache NPM dependencies
-        uses: actions/cache@v3
-        with:
-          path: .yarn/cache
-          key: npm-cache-test-linux-aarch64-gnu-${{ matrix.node }}
       - name: Install dependencies
         run: |
           yarn config set supportedArchitectures.cpu "arm64"
           yarn config set supportedArchitectures.libc "glibc"
           yarn install
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+        with:
+          platforms: arm64
+      - run: docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
       - name: Setup and run tests
         uses: addnab/docker-run-action@v3
         with:
@@ -369,7 +360,6 @@ jobs:
       - build
     runs-on: ubuntu-latest
     steps:
-      - run: docker run --rm --privileged multiarch/qemu-user-static:register --reset
       - uses: actions/checkout@v3
       - name: Download artifacts
         uses: actions/download-artifact@v3
@@ -379,16 +369,16 @@ jobs:
       - name: List packages
         run: ls -R .
         shell: bash
-      - name: Cache NPM dependencies
-        uses: actions/cache@v3
-        with:
-          path: .yarn/cache
-          key: npm-cache-test-linux-aarch64-musl-${{ matrix.node }}
       - name: Install dependencies
         run: |
           yarn config set supportedArchitectures.cpu "arm64"
           yarn config set supportedArchitectures.libc "musl"
           yarn install
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+        with:
+          platforms: arm64
+      - run: docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
       - name: Setup and run tests
         uses: addnab/docker-run-action@v3
         with:
@@ -398,6 +388,46 @@ jobs:
             set -e
             apk add dbus nodejs npm yarn gnome-keyring
             dbus-run-session -- sh linux-test.sh
+  test-linux-arm-gnueabihf-binding:
+    name: Test bindings on armv7-unknown-linux-gnueabihf - node@${{ matrix.node }}
+    needs:
+      - build
+    strategy:
+      fail-fast: false
+      matrix:
+        node:
+          - '14'
+          - '16'
+          - '18'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: bindings-armv7-unknown-linux-gnueabihf
+          path: .
+      - name: List packages
+        run: ls -R .
+        shell: bash
+      - name: Install dependencies
+        run: |
+          yarn config set supportedArchitectures.cpu "arm"
+          yarn install
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+        with:
+          platforms: arm
+      - run: docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+      - name: Setup and run tests
+        uses: addnab/docker-run-action@v3
+        with:
+          image: ghcr.io/napi-rs/napi-rs/nodejs:armhf-${{ matrix.node }}
+          options: '-v ${{ github.workspace }}:/build -w /build --cap-add=IPC_LOCK'
+          run: |
+            set -e
+            apt update -y && apt install -y gnome-keyring
+            dbus-run-session -- bash linux-test.sh
   publish:
     name: Publish
     runs-on: ubuntu-latest

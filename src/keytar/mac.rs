@@ -2,10 +2,11 @@ extern crate security_framework;
 use super::error::KeytarError;
 
 use security_framework::{
-  item::{ItemClass, ItemSearchOptions, Limit},
-  os::macos::passwords::find_generic_password,
-  passwords::{delete_generic_password, get_generic_password, set_generic_password},
+  item::{ItemClass, ItemSearchOptions},
+  os::macos::keychain::SecKeychain,
 };
+
+const ERR_SEC_ITEM_NOT_FOUND: i32 = -25300;
 
 impl From<security_framework::base::Error> for KeytarError {
   fn from(error: security_framework::base::Error) -> Self {
@@ -21,15 +22,18 @@ pub fn set_password(
   account: &String,
   password: &mut String,
 ) -> Result<bool, KeytarError> {
-  match set_generic_password(service.as_str(), account.as_str(), password.as_bytes()) {
+  let keychain = SecKeychain::default().unwrap();
+  match keychain.set_generic_password(service.as_str(), account.as_str(), password.as_bytes()) {
     Ok(()) => Ok(true),
     Err(err) => Err(KeytarError::from(err)),
   }
 }
 
 pub fn get_password(service: &String, account: &String) -> Result<Option<String>, KeytarError> {
-  match get_generic_password(service.as_str(), account.as_str()) {
-    Ok(bytes) => Ok(Some(String::from_utf8(bytes)?)),
+  let keychain = SecKeychain::default().unwrap();
+  match keychain.find_generic_password(service.as_str(), account.as_str()) {
+    Ok((pw, _)) => Ok(Some(String::from_utf8(pw.to_owned())?)),
+    Err(err) if err.code() == ERR_SEC_ITEM_NOT_FOUND => Ok(None),
     Err(err) => Err(KeytarError::from(err)),
   }
 }
@@ -43,8 +47,9 @@ pub fn find_password(service: &String) -> Result<Option<String>, KeytarError> {
     });
   }
 
-  match find_generic_password(None, cred_attrs[0], cred_attrs[1]) {
-    Ok((pw, item)) => {
+  let keychain = SecKeychain::default().unwrap();
+  match keychain.find_generic_password(cred_attrs[0], cred_attrs[1]) {
+    Ok((pw, _)) => {
       let pw_str = String::from_utf8(pw.to_owned())?;
       return Ok(Some(pw_str));
     }
@@ -53,8 +58,13 @@ pub fn find_password(service: &String) -> Result<Option<String>, KeytarError> {
 }
 
 pub fn delete_password(service: &String, account: &String) -> Result<bool, KeytarError> {
-  match delete_generic_password(service.as_str(), account.as_str()) {
-    Ok(_) => Ok(true),
+  let keychain = SecKeychain::default().unwrap();
+  match keychain.find_generic_password(service.as_str(), account.as_str()) {
+    Ok((_, item)) => {
+      item.delete();
+      return Ok(true);
+    },
+    Err(err) if err.code() == ERR_SEC_ITEM_NOT_FOUND => Ok(false),
     Err(err) => Err(KeytarError::from(err)),
   }
 }
