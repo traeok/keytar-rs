@@ -3,7 +3,7 @@ use std::ffi::{c_void, OsStr};
 use std::os::windows::prelude::OsStrExt;
 use std::result::Result;
 use windows_sys::{
-  core::*,
+  core::{PCWSTR, PWSTR},
   Win32::Foundation::*,
   Win32::Security::Credentials::*,
   Win32::System::Diagnostics::Debug::{
