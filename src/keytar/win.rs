@@ -1,6 +1,5 @@
 use super::error::KeytarError;
-use std::ffi::{c_void, OsStr};
-use std::os::windows::prelude::OsStrExt;
+use std::ffi::c_void;
 use std::result::Result;
 use windows_sys::{
   core::{PCWSTR, PWSTR},
@@ -10,7 +9,6 @@ use windows_sys::{
     FormatMessageW, FORMAT_MESSAGE_ALLOCATE_BUFFER, FORMAT_MESSAGE_FROM_SYSTEM,
     FORMAT_MESSAGE_IGNORE_INSERTS,
   },
-  Win32::System::WindowsProgramming::uaw_wcslen,
 };
 
 impl From<WIN32_ERROR> for KeytarError {
@@ -40,30 +38,24 @@ fn win32_error_as_string(error: WIN32_ERROR) -> String {
       0,
       buffer,
       0,
-      std::ptr::null()
+      std::ptr::null(),
     );
 
-    String::from_utf16(std::slice::from_raw_parts(
-      buffer,
-      size as usize
-    )).unwrap_or("No error details available.".to_string())
+    String::from_utf16(std::slice::from_raw_parts(buffer, size as usize))
+      .unwrap_or("No error details available.".to_string())
   }
 }
 
 /**
- * Helper function to encode a string as UTF-16 for usage w/ credential APIs.
+ * Helper function to encode a string as a null-terminated UTF-16 string for use w/ credential APIs.
  * Returns:
  * Some(val) if the string was successfully converted to UTF-16,
  * or None otherwise.
  */
-fn encode_utf16(str: &str) -> Option<Vec<u16>> {
-  let mut chars: Vec<u16> = OsStr::new(str).encode_wide().collect();
-  if chars.iter().any(|b| *b == 0u16) {
-    return None;
-  }
-
-  chars.push(0u16);
-  Some(chars)
+fn encode_utf16(str: &str) -> Vec<u16> {
+  let mut chars: Vec<u16> = str.encode_utf16().collect();
+  chars.push(0);
+  chars
 }
 
 pub fn set_password(
@@ -72,24 +64,8 @@ pub fn set_password(
   password: &mut String,
 ) -> Result<bool, KeytarError> {
   // Build WinAPI strings and object parameters from arguments
-  let target_bytes: Vec<u16> = match encode_utf16(format!("{}/{}", service, account).as_str()) {
-    None => {
-      return Err(KeytarError::InvalidArg {
-        argument: "service/account".to_string(),
-        details: "Service/account could not be converted to UTF-16.".to_string(),
-      })
-    }
-    Some(val) => val,
-  };
-  let username_bytes: Vec<u16> = match encode_utf16(account.as_str()) {
-    None => {
-      return Err(KeytarError::InvalidArg {
-        argument: "username".to_string(),
-        details: "Username could not be converted to UTF-16.".to_string(),
-      })
-    }
-    Some(val) => val,
-  };
+  let target_bytes = encode_utf16(format!("{}/{}", service, account).as_str());
+  let username_bytes = encode_utf16(account.as_str());
 
   let cred = CREDENTIALW {
     Flags: 0,
@@ -128,15 +104,7 @@ pub fn set_password(
 
 pub fn get_password(service: &String, account: &String) -> Result<Option<String>, KeytarError> {
   let mut cred: *mut CREDENTIALW = std::ptr::null_mut::<CREDENTIALW>();
-  let target_name: Vec<u16> = match encode_utf16(format!("{}/{}", service, account).as_str()) {
-    None => {
-      return Err(KeytarError::InvalidArg {
-        argument: "service/account".to_string(),
-        details: "Service/account could not be converted to UTF-16.".to_string(),
-      })
-    }
-    Some(val) => val,
-  };
+  let target_name = encode_utf16(format!("{}/{}", service, account).as_str());
 
   // Attempt to read credential from user's credential set
   let read_result: i32;
@@ -178,15 +146,7 @@ pub fn get_password(service: &String, account: &String) -> Result<Option<String>
 }
 
 pub fn delete_password(service: &String, account: &String) -> Result<bool, KeytarError> {
-  let target_name: Vec<u16> = match encode_utf16(format!("{}/{}", service, account).as_str()) {
-    None => {
-      return Err(KeytarError::InvalidArg {
-        argument: "service/account".to_string(),
-        details: "Service/account could not be converted to UTF-16.".to_string(),
-      })
-    }
-    Some(val) => val,
-  };
+  let target_name = encode_utf16(format!("{}/{}", service, account).as_str());
 
   // Attempt to delete credential from user's credential set
   let delete_result: i32;
@@ -213,15 +173,7 @@ pub fn delete_password(service: &String, account: &String) -> Result<bool, Keyta
 }
 
 pub fn find_password(service: &String) -> Result<Option<String>, KeytarError> {
-  let filter: Vec<u16> = match encode_utf16(format!("{}*", service).as_str()) {
-    None => {
-      return Err(KeytarError::InvalidArg {
-        argument: "service".to_string(),
-        details: "Service could not be converted to UTF-16.".to_string(),
-      })
-    }
-    Some(val) => val,
-  };
+  let filter = encode_utf16(format!("{}*", service).as_str());
 
   let mut count: u32 = 0;
   let mut creds: *mut *mut CREDENTIALW = std::ptr::null_mut::<*mut CREDENTIALW>();
@@ -267,15 +219,7 @@ pub fn find_credentials(
   service: &String,
   credentials: &mut Vec<(String, String)>,
 ) -> Result<bool, KeytarError> {
-  let filter_bytes: Vec<u16> = match encode_utf16(format!("{}*", service).as_str()) {
-    None => {
-      return Err(KeytarError::InvalidArg {
-        argument: "service".to_string(),
-        details: "Service could not be converted to UTF-16.".to_string(),
-      })
-    }
-    Some(val) => val,
-  };
+  let filter_bytes: Vec<u16> = encode_utf16(format!("{}*", service).as_str());
   let filter = filter_bytes.as_ptr() as PCWSTR;
 
   let mut count: u32 = 0;
@@ -325,10 +269,8 @@ pub fn find_credentials(
 
     let username: String;
     unsafe {
-      username = String::from_utf16(std::slice::from_raw_parts(
-        cred.UserName,
-        uaw_wcslen(cred.UserName),
-      ))?;
+      let size = (0..).take_while(|&i| *cred.UserName.offset(i) != 0).count();
+      username = String::from_utf16(std::slice::from_raw_parts(cred.UserName, size))?;
     }
     credentials.push((username, password));
   }
