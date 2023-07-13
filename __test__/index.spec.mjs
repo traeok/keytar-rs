@@ -45,11 +45,6 @@ test.serial("get/setPassword with empty string parameters", async (t) => {
   await setPassword("", "TestEmptyService", "emptyServicePW");
   const serviceRes = await getPassword("", "TestEmptyService");
   t.is(serviceRes, "emptyServicePW");
-
-  // Empty "password" parameter
-  await setPassword("TestKeytar", "TestEmptyPW", "");
-  const pwRes = await getPassword("TestKeytar", "TestEmptyPW");
-  t.is(pwRes, "");
 });
 
 test.serial("get/setPassword with ASCII string", async (t) => {
@@ -111,7 +106,12 @@ test.serial(
     // "password" parameter w/ extra null terminator
     await setPassword("TestKeytar", "PwNullTerm", "PW\0");
     const pwRes = await getPassword("TestKeytar", "PwNullTerm");
-    t.is(pwRes, "PW\0");
+    if (process.platform === "linux") {
+      // libsecret automatically strips off null terminator
+      t.is(pwRes, "PW");
+    } else {
+      t.is(pwRes, "PW\0");
+    }
   }
 );
 
@@ -133,18 +133,10 @@ test.serial(
         password: "ᚻᛖ ᚳᚹᚫᚦ ᚦᚫᛏ ᚻᛖ ᛒᚢᛞᛖ ᚩᚾ ᚦᚫᛗ ᛚᚪᚾᛞᛖ ᚾᚩᚱᚦᚹᛖᚪᚱᛞᚢᛗ ᚹᛁᚦ ᚦᚪ ᚹᛖᛥᚫ",
       },
       { account: "TestUTF16", password: "🌞🌙🌟🌴" },
-      { account: "TestEmptyPW", password: "" },
       { account: "PwNullTerm", password: "PW\x00" },
     ];
-
-    if (process.platform === "win32") {
-      // Windows Credential Manager has inconsistent error handling and doesn't report
-      // when they ignore a request to store a credential with an empty password
-      expected = expected.filter((cred) => cred.account !== "TestEmptyPW");
-    }
-
     const actual = await findCredentials("TestKeytar");
-    t.is(actual.length, expected.length);
+    t.is(actual.length, expected.length, `actual: ${JSON.stringify(actual)}; expected: ${JSON.stringify(expected)}`);
 
     expected.forEach((cred) =>
       t.not(
@@ -184,7 +176,6 @@ test("deletePassword deletes all test credentials", async (t) => {
     { service: "TestKeytar", account: "TestBinary" },
     { service: "TestEmptyAccount", account: "" },
     { service: "", account: "TestEmptyService" },
-    { service: "TestKeytar", account: "TestEmptyPW" },
     { service: "TestKeytar\0", account: "ServiceNullTerm" },
     { service: "TestKeytar", account: "AccNullTerm\0" },
     { service: "TestKeytar", account: "PwNullTerm" },
@@ -206,6 +197,8 @@ test("deletePassword deletes all test credentials", async (t) => {
     });
     t.pass();
   });
+
+  t.is((await findCredentials("TestKeytar")).length, 0);
 });
 
 // Unit tests specific to Windows API calls

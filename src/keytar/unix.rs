@@ -1,5 +1,5 @@
 extern crate libsecret;
-use libsecret::{SearchFlags, prelude::RetrievableExtManual, traits::RetrievableExt};
+use libsecret::{prelude::RetrievableExtManual, traits::RetrievableExt, SearchFlags};
 use std::collections::HashMap;
 
 use super::error::KeytarError;
@@ -27,17 +27,14 @@ pub fn set_password(
     Some(collection),
     format!("{}/{}", service, account).as_str(),
     password.as_str(),
-    gio::Cancellable::NONE
+    gio::Cancellable::NONE,
   ) {
     Ok(_) => Ok(true),
     Err(err) => Err(KeytarError::from(err)),
   }
 }
 
-pub fn get_password(
-  service: &String,
-  account: &String,
-) -> Result<Option<String>, KeytarError> {
+pub fn get_password(service: &String, account: &String) -> Result<Option<String>, KeytarError> {
   let attributes = HashMap::from([("service", service.as_str()), ("account", account.as_str())]);
 
   match libsecret::password_lookup_sync(None, attributes, gio::Cancellable::NONE) {
@@ -50,7 +47,13 @@ pub fn get_password(
 }
 
 pub fn find_password(service: &String) -> Result<Option<String>, KeytarError> {
-  let attributes = HashMap::from([("service", service.as_str())]);
+  let attributes = if service.contains("/") && service.len() > 1 {
+    // In format "service/account"
+    let values: Vec<&str> = service.split("/").collect();
+    HashMap::from([("service", values[0]), ("account", values[1])])
+  } else {
+    HashMap::from([("service", service.as_str())])
+  };
 
   match libsecret::password_lookup_sync(None, attributes, gio::Cancellable::NONE) {
     Ok(pw) => match pw {
@@ -65,7 +68,7 @@ pub fn delete_password(service: &String, account: &String) -> Result<bool, Keyta
   match libsecret::password_clear_sync(
     None,
     HashMap::from([("service", service.as_str()), ("account", account.as_str())]),
-    gio::Cancellable::NONE
+    gio::Cancellable::NONE,
   ) {
     Ok(_) => Ok(true),
     Err(err) => match err.kind() {
@@ -99,7 +102,9 @@ pub fn find_credentials(
         .filter_map(|val| {
           let (acc, pass) = val.unwrap();
 
-          let bytes = pass.unwrap().get();
+          let value_obj = pass.unwrap();
+          
+          let bytes = value_obj.get();
           let pw = String::from_utf8(bytes).unwrap_or("".to_string());
           if pw.is_empty() {
             return None;
@@ -112,6 +117,12 @@ pub fn find_credentials(
 
       Ok(true)
     }
-    Err(err) => Err(KeytarError::Os(err.message().to_owned())),
+    Err(err) => {
+      if err.message().contains("No such secret item at path") {
+        Ok(false)
+      } else {
+        Err(KeytarError::Os(err.message().to_owned()))
+      }
+    },
   }
 }
