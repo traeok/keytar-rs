@@ -170,6 +170,7 @@ test.serial("findPassword for CJK symbols", async (t) => {
 test("deletePassword deletes all test credentials", async (t) => {
   const creds = [
     { service: "TestKeytar", account: "TestASCII" },
+    { service: "TestKeytar", account: "TestUTF8" },
     { service: "TestKeytar", account: "TestCharSet" },
     { service: "TestKeytar", account: "TestUTF16" },
     { service: "TestKeytar", account: "TestCJK" },
@@ -195,7 +196,6 @@ test("deletePassword deletes all test credentials", async (t) => {
 
       resolve();
     });
-    t.pass();
   });
 
   t.is((await findCredentials("TestKeytar")).length, 0);
