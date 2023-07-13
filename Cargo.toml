@@ -13,12 +13,15 @@ napi = {version = "2.13.2", default-features = false, features = ["napi4"]}
 napi-derive = "2.13.0"
 thiserror = "1.0.38"
 
-[target.'cfg(target_os = "windows")'.dependencies.windows]
+[target.'cfg(target_os = "windows")'.dependencies.windows-sys]
 features = [
   "Win32_Foundation",
   "Win32_Security_Credentials",
+  "Win32_System_Diagnostics_Debug",
+  "Win32_System_Memory",
+  "Win32_System_WindowsProgramming",
 ]
-version = "0.43.0"
+version = "0.48.0"
 
 [target.'cfg(target_os = "macos")'.dependencies]
 security-framework = "2.9.1"

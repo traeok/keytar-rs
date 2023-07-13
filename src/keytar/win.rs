@@ -1,12 +1,71 @@
 use super::error::KeytarError;
 use std::ffi::c_void;
 use std::result::Result;
-use windows::{core::*, Win32::Foundation::*, Win32::Security::Credentials::*};
+use windows_sys::{
+  core::{PCWSTR, PWSTR},
+  Win32::Foundation::*,
+  Win32::Security::Credentials::*,
+  Win32::System::{
+    Diagnostics::Debug::{
+      FormatMessageW, FORMAT_MESSAGE_ALLOCATE_BUFFER, FORMAT_MESSAGE_FROM_SYSTEM,
+      FORMAT_MESSAGE_IGNORE_INSERTS,
+    },
+    Memory::LocalFree,
+  },
+};
 
 impl From<WIN32_ERROR> for KeytarError {
   fn from(error: WIN32_ERROR) -> Self {
-    KeytarError::Os(error.to_hresult().message().to_string())
+    KeytarError::Os(win32_error_as_string(error))
   }
+}
+
+/**
+ * Helper function to convert the last Win32 error into a human-readable error message.
+ * Returns: A String containing the error message.
+ */
+fn win32_error_as_string(error: WIN32_ERROR) -> String {
+  let buffer: PWSTR = std::ptr::null_mut();
+
+  // https://github.com/microsoft/windows-rs/blob/master/crates/libs/core/src/hresult.rs#L96
+  let as_hresult = if error == 0 {
+    0
+  } else {
+    (error & 0x0000_FFFF) | (7 << 16) | 0x8000_0000
+  } as _;
+  let mut str = "No error details available.".to_owned();
+  unsafe {
+    let size = FormatMessageW(
+      FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+      as_hresult as *const c_void,
+      as_hresult,
+      0,
+      buffer,
+      0,
+      std::ptr::null(),
+    );
+
+    if buffer.is_null() {
+      return str;
+    }
+
+    str = String::from_utf16(std::slice::from_raw_parts(buffer, size as usize)).unwrap_or(str);
+    LocalFree(buffer as isize);
+  }
+
+  str
+}
+
+/**
+ * Helper function to encode a string as a null-terminated UTF-16 string for use w/ credential APIs.
+ * Returns:
+ * Some(val) if the string was successfully converted to UTF-16,
+ * or None otherwise.
+ */
+fn encode_utf16(str: &str) -> Vec<u16> {
+  let mut chars: Vec<u16> = str.encode_utf16().collect();
+  chars.push(0);
+  chars
 }
 
 pub fn set_password(
@@ -14,30 +73,36 @@ pub fn set_password(
   account: &String,
   password: &mut String,
 ) -> Result<bool, KeytarError> {
-  let mut cred = CREDENTIALW {
+  // Build WinAPI strings and object parameters from arguments
+  let target_bytes = encode_utf16(format!("{}/{}", service, account).as_str());
+  let username_bytes = encode_utf16(account.as_str());
+
+  let cred = CREDENTIALW {
+    Flags: 0,
     Type: CRED_TYPE_GENERIC,
-    ..Default::default()
+    TargetName: target_bytes.as_ptr() as PWSTR,
+    Comment: std::ptr::null_mut(),
+    LastWritten: FILETIME {
+      dwLowDateTime: 0,
+      dwHighDateTime: 0,
+    },
+    Persist: CRED_PERSIST_ENTERPRISE,
+    CredentialBlobSize: password.len() as u32,
+    CredentialBlob: password.as_ptr() as *mut u8,
+    AttributeCount: 0,
+    Attributes: std::ptr::null_mut(),
+    TargetAlias: std::ptr::null_mut(),
+    UserName: username_bytes.as_ptr() as PWSTR,
   };
 
-  // Build WinAPI strings and object parameters from arguments
-  let mut target_bytes: Vec<u16> = format!("{}/{}", service, account).encode_utf16().collect();
-  target_bytes.push(0);
-  cred.TargetName = PWSTR::from_raw(target_bytes.as_mut_ptr());
-  let mut username_bytes: Vec<u16> = account.encode_utf16().collect();
-  username_bytes.push(0);
-  cred.UserName = PWSTR::from_raw(username_bytes.as_mut_ptr());
-  cred.CredentialBlobSize = password.len() as u32;
-  cred.CredentialBlob = password.as_mut_ptr();
-  cred.Persist = CRED_PERSIST_ENTERPRISE;
-
   // Save credential to user's credential set
-  let write_result: bool;
+  let write_result: i32;
   unsafe {
-    write_result = bool::from(CredWriteW(&cred, 0));
+    write_result = CredWriteW(&cred, 0);
   }
 
   let error_code: WIN32_ERROR;
-  if !write_result {
+  if write_result != TRUE {
     unsafe {
       error_code = GetLastError();
     }
@@ -49,21 +114,20 @@ pub fn set_password(
 
 pub fn get_password(service: &String, account: &String) -> Result<Option<String>, KeytarError> {
   let mut cred: *mut CREDENTIALW = std::ptr::null_mut::<CREDENTIALW>();
-  let mut target_name: Vec<u16> = format!("{}/{}", service, account).encode_utf16().collect();
-  target_name.push(0);
+  let target_name = encode_utf16(format!("{}/{}", service, account).as_str());
 
   // Attempt to read credential from user's credential set
-  let read_result: bool;
+  let read_result: i32;
   unsafe {
-    read_result = bool::from(CredReadW(
-      PCWSTR::from_raw(target_name.as_mut_ptr()),
-      CRED_TYPE_GENERIC.0,
+    read_result = CredReadW(
+      target_name.as_ptr() as PCWSTR,
+      CRED_TYPE_GENERIC,
       0,
       &mut cred,
-    ));
+    );
   }
 
-  if !read_result {
+  if read_result != TRUE {
     let error_code: WIN32_ERROR;
     unsafe {
       error_code = GetLastError();
@@ -77,36 +141,30 @@ pub fn get_password(service: &String, account: &String) -> Result<Option<String>
   }
 
   // Build buffer for credential secret and return as UTF-8 string
-  let mut pw_bytes: Vec<u8> = Vec::new();
   unsafe {
-    let pw_len = (*cred).CredentialBlobSize as usize;
-    pw_bytes.reserve(pw_len);
-
-    let pw_str = String::from(std::str::from_utf8(std::slice::from_raw_parts(
-      (*cred).CredentialBlob,
-      pw_len,
-    ))?);
+    let bytes =
+      std::slice::from_raw_parts((*cred).CredentialBlob, (*cred).CredentialBlobSize as usize);
 
     CredFree(cred as *const c_void);
-    Ok(Some(pw_str))
+    return match String::from_utf8(bytes.to_vec()) {
+      Ok(str) => Ok(Some(str)),
+      Err(err) => Err(KeytarError::Utf8(
+        format!("Failed to convert credential to UTF-8: {}", err).to_owned(),
+      )),
+    };
   }
 }
 
 pub fn delete_password(service: &String, account: &String) -> Result<bool, KeytarError> {
-  let mut target_name: Vec<u16> = format!("{}/{}", service, account).encode_utf16().collect();
-  target_name.push(0);
+  let target_name = encode_utf16(format!("{}/{}", service, account).as_str());
 
   // Attempt to delete credential from user's credential set
-  let delete_result: bool;
+  let delete_result: i32;
   unsafe {
-    delete_result = bool::from(CredDeleteW(
-      PCWSTR::from_raw(target_name.as_mut_ptr()),
-      CRED_TYPE_GENERIC.0,
-      0,
-    ));
+    delete_result = CredDeleteW(target_name.as_ptr() as PCWSTR, CRED_TYPE_GENERIC, 0);
   }
 
-  if !delete_result {
+  if delete_result != TRUE {
     let error_code: WIN32_ERROR;
     unsafe {
       error_code = GetLastError();
@@ -125,24 +183,23 @@ pub fn delete_password(service: &String, account: &String) -> Result<bool, Keyta
 }
 
 pub fn find_password(service: &String) -> Result<Option<String>, KeytarError> {
-  let mut filter: Vec<u16> = format!("{}*", service).encode_utf16().collect();
-  filter.push(0);
+  let filter = encode_utf16(format!("{}*", service).as_str());
 
   let mut count: u32 = 0;
   let mut creds: *mut *mut CREDENTIALW = std::ptr::null_mut::<*mut CREDENTIALW>();
 
   // Attempt to find matching credential from user's credential set
-  let find_result: bool;
+  let find_result: i32;
   unsafe {
-    find_result = bool::from(CredEnumerateW(
-      PCWSTR::from_raw(filter.as_mut_ptr()),
-      CRED_ENUMERATE_FLAGS(0),
+    find_result = CredEnumerateW(
+      filter.as_ptr() as PCWSTR,
+      0u32,
       &mut count,
       &mut creds as *mut *mut *mut CREDENTIALW,
-    ));
+    );
   }
 
-  if !find_result {
+  if find_result != TRUE {
     let error_code: WIN32_ERROR;
     unsafe {
       error_code = GetLastError();
@@ -172,25 +229,24 @@ pub fn find_credentials(
   service: &String,
   credentials: &mut Vec<(String, String)>,
 ) -> Result<bool, KeytarError> {
-  let mut filter_bytes = format!("{}*", service).encode_utf16().collect::<Vec<u16>>();
-  filter_bytes.push(0);
-  let filter = PCWSTR::from_raw(filter_bytes.as_mut_ptr());
+  let filter_bytes: Vec<u16> = encode_utf16(format!("{}*", service).as_str());
+  let filter = filter_bytes.as_ptr() as PCWSTR;
 
   let mut count: u32 = 0;
   let mut creds: *mut *mut CREDENTIALW = std::ptr::null_mut::<*mut CREDENTIALW>();
 
   // Attempt to fetch user's credential set
-  let find_result: bool;
+  let find_result: i32;
   unsafe {
-    find_result = bool::from(CredEnumerateW(
+    find_result = CredEnumerateW(
       filter,
-      CRED_ENUMERATE_FLAGS(0),
+      0u32,
       &mut count,
       &mut creds as *mut *mut *mut CREDENTIALW,
-    ));
+    );
   }
 
-  if !find_result {
+  if find_result != TRUE {
     let error_code: WIN32_ERROR;
     unsafe {
       error_code = GetLastError();
@@ -223,7 +279,8 @@ pub fn find_credentials(
 
     let username: String;
     unsafe {
-      username = cred.UserName.to_string()?;
+      let size = (0..).take_while(|&i| *cred.UserName.offset(i) != 0).count();
+      username = String::from_utf16(std::slice::from_raw_parts(cred.UserName, size))?;
     }
     credentials.push((username, password));
   }
