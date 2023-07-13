@@ -8,7 +8,7 @@ use super::error::KeytarError;
 impl From<secret_service::Error> for KeytarError {
   fn from(err: secret_service::Error) -> Self {
     KeytarError::Library {
-      name: "secret_service".to_string(),
+      name: "secret_service".to_owned(),
       details: format!("{:?}", err),
     }
   }
@@ -51,7 +51,7 @@ pub fn get_password(service: &String, account: &String) -> Result<Option<String>
     Err(err) => match err {
       secret_service::Error::NoResult => Ok(None),
       _ => Err(KeytarError::from(err)),
-    }
+    },
   }
 }
 
@@ -87,7 +87,7 @@ pub fn delete_password(service: &String, account: &String) -> Result<bool, Keyta
     Err(err) => match err {
       secret_service::Error::NoResult => Ok(false),
       _ => Err(KeytarError::from(err)),
-    }
+    },
   }
 }
 
@@ -109,7 +109,7 @@ pub fn find_credentials(
       if cred.is_empty() {
         credentials.push((String::default(), pw));
       } else {
-        credentials.push((cred[1].to_string(), pw));
+        credentials.push((cred[1].to_owned(), pw));
       }
     }
   }
