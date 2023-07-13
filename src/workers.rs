@@ -1,9 +1,7 @@
-use napi::{Env, Error, JsBoolean, Result, Task, JsUnknown};
+use napi::{Env, Error, Result, Task, JsUnknown, JsBoolean};
 use napi_derive::napi;
 
 use crate::keytar;
-
-// TODO: error handling
 
 pub struct SetPassword {
   pub service: String,

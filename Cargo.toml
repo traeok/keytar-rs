@@ -24,10 +24,13 @@ version = "0.43.0"
 security-framework = "2.9.1"
 
 [target.'cfg(any(target_os = "freebsd", target_os = "linux"))'.dependencies]
-secret-service = "2.0.2"
+glib = "0.17.10"
+gio = "0.17.10"
+libsecret = { version = "0.3.0", features = ["v0_19"] }
 
 [build-dependencies]
 napi-build = "2.0.1"
 
 [profile.release]
 lto = true
+opt-level = "z"  # Optimize for size.
