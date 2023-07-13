@@ -10,7 +10,7 @@ use security_framework::{
 impl From<security_framework::base::Error> for KeytarError {
   fn from(error: security_framework::base::Error) -> Self {
     KeytarError::Library {
-      name: "security_framework".to_string(),
+      name: "security_framework".to_owned(),
       details: format!("{:?}", error),
     }
   }
@@ -38,8 +38,8 @@ pub fn find_password(service: &String) -> Result<Option<String>, KeytarError> {
   let cred_attrs: Vec<&str> = service.split("/").collect();
   if cred_attrs.len() < 2 {
     return Err(KeytarError::InvalidArg {
-      argument: "service".to_string(),
-      details: "Invalid format for service string; must be in format 'SERVICE/ACCOUNT'".to_string(),
+      argument: "service".to_owned(),
+      details: "Invalid format for service string; must be in format 'SERVICE/ACCOUNT'".to_owned(),
     });
   }
 
@@ -75,8 +75,8 @@ pub fn find_credentials(
   for result in search_results {
     if let Some(result_map) = result.simplify_dict() {
       credentials.push((
-        result_map.get("acct").unwrap().to_string(),
-        result_map.get("v_Data").unwrap().to_string(),
+        result_map.get("acct").unwrap().to_owned(),
+        result_map.get("v_Data").unwrap().to_owned(),
       ))
     }
   }

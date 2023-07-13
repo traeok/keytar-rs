@@ -5,9 +5,12 @@ use windows_sys::{
   core::{PCWSTR, PWSTR},
   Win32::Foundation::*,
   Win32::Security::Credentials::*,
-  Win32::System::Diagnostics::Debug::{
-    FormatMessageW, FORMAT_MESSAGE_ALLOCATE_BUFFER, FORMAT_MESSAGE_FROM_SYSTEM,
-    FORMAT_MESSAGE_IGNORE_INSERTS,
+  Win32::System::{
+    Diagnostics::Debug::{
+      FormatMessageW, FORMAT_MESSAGE_ALLOCATE_BUFFER, FORMAT_MESSAGE_FROM_SYSTEM,
+      FORMAT_MESSAGE_IGNORE_INSERTS,
+    },
+    Memory::LocalFree,
   },
 };
 
@@ -30,6 +33,7 @@ fn win32_error_as_string(error: WIN32_ERROR) -> String {
   } else {
     (error & 0x0000_FFFF) | (7 << 16) | 0x8000_0000
   } as _;
+  let mut str = "No error details available.".to_owned();
   unsafe {
     let size = FormatMessageW(
       FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
@@ -41,9 +45,15 @@ fn win32_error_as_string(error: WIN32_ERROR) -> String {
       std::ptr::null(),
     );
 
-    String::from_utf16(std::slice::from_raw_parts(buffer, size as usize))
-      .unwrap_or("No error details available.".to_string())
+    if buffer.is_null() {
+      return str;
+    }
+
+    str = String::from_utf16(std::slice::from_raw_parts(buffer, size as usize)).unwrap_or(str);
+    LocalFree(buffer as isize);
   }
+
+  str
 }
 
 /**
@@ -139,7 +149,7 @@ pub fn get_password(service: &String, account: &String) -> Result<Option<String>
     return match String::from_utf8(bytes.to_vec()) {
       Ok(str) => Ok(Some(str)),
       Err(err) => Err(KeytarError::Utf8(
-        format!("Failed to convert credential to UTF-8: {}", err).to_string(),
+        format!("Failed to convert credential to UTF-8: {}", err).to_owned(),
       )),
     };
   }

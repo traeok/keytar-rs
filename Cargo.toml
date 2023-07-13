@@ -17,8 +17,9 @@ thiserror = "1.0.38"
 features = [
   "Win32_Foundation",
   "Win32_Security_Credentials",
+  "Win32_System_Diagnostics_Debug",
+  "Win32_System_Memory",
   "Win32_System_WindowsProgramming",
-  "Win32_System_Diagnostics_Debug"
 ]
 version = "0.48.0"
 
