@@ -94,10 +94,10 @@ jobs:
             docker: ghcr.io/napi-rs/napi-rs/nodejs-rust:lts-alpine
             build: |
               set -e
-              apk add libsecret-dev
+              apk add --arch aarch64 libsecret-dev
               ls -R /usr/lib*
               rustup target add aarch64-unknown-linux-musl
-              export PKG_CONFIG_SYSROOT_DIR="/" && export RUSTFLAGS="-L /usr/lib"
+              export PKG_CONFIG_SYSROOT_DIR="/"
               yarn build --target aarch64-unknown-linux-musl
               /aarch64-linux-musl-cross/bin/aarch64-linux-musl-strip *.node
           - host: windows-latest
