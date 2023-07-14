@@ -29,7 +29,8 @@ security-framework = "2.9.1"
 [target.'cfg(any(target_os = "freebsd", target_os = "linux"))'.dependencies]
 glib = "0.17.10"
 gio = "0.17.10"
-libsecret = { version = "0.3.0", features = ["v0_19"] }
+libsecret = "0.3.0"
+libsecret-sys = "0.3.0"
 
 [build-dependencies]
 napi-build = "2.0.1"
