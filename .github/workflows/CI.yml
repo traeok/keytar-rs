@@ -94,7 +94,7 @@ jobs:
             docker: ghcr.io/napi-rs/napi-rs/nodejs-rust:lts-alpine
             build: |
               set -e
-              echo "aarch64" > /etc/apk/arch && apk add libsecret-dev
+              echo "aarch64" > /etc/apk/arch && apk add --allow-untrusted libsecret-dev
               rustup target add aarch64-unknown-linux-musl
               export PKG_CONFIG_SYSROOT_DIR="/" && export RUSTFLAGS="-L /usr/lib"
               export PKG_CONFIG_PATH="/usr/lib/pkgconfig/"
