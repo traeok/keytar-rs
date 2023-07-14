@@ -56,8 +56,8 @@ jobs:
               sudo apt-get update && sudo apt-get install libsecret-1-dev:armhf -y
               sudo apt-get install gcc-arm-linux-gnueabihf -y
             build: |
-              export PKG_CONFIG_SYSROOT_DIR="/" && export RUSTFLAGS="-L /usr/lib/arm-linux-gnueabihf"
-              export PKG_CONFIG_PATH="/usr/lib/arm-linux-gnueabihf/pkgconfig/"
+              export PKG_CONFIG_PATH="/usr/lib/arm-linux-gnueabihf/pkgconfig"
+              export RUSTFLAGS="-L /usr/lib/arm-linux-gnueabihf"
               yarn build --target armv7-unknown-linux-gnueabihf
               arm-linux-gnueabihf-strip *.node
           - host: ubuntu-latest
@@ -97,7 +97,7 @@ jobs:
               apk add --arch aarch64 libsecret-dev
               ls -R /usr/lib*
               rustup target add aarch64-unknown-linux-musl
-              export PKG_CONFIG_SYSROOT_DIR="/"
+              export PKG_CONFIG_SYSROOT_DIR="/" && export RUSTFLAGS="-L /usr/lib"
               yarn build --target aarch64-unknown-linux-musl
               /aarch64-linux-musl-cross/bin/aarch64-linux-musl-strip *.node
           - host: windows-latest
