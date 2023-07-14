@@ -94,6 +94,7 @@ jobs:
             docker: ghcr.io/napi-rs/napi-rs/nodejs-rust:lts-alpine
             build: |
               set -e
+              apk add pkgconfig
               apk add --arch aarch64 -X "http://dl-cdn.alpinelinux.org/alpine/latest-stable/main/" --root /chroot --initdb --allow-untrusted --no-scripts libsecret-dev
               rustup target add aarch64-unknown-linux-musl
               export PKG_CONFIG_SYSROOT_DIR="/chroot" && export RUSTFLAGS="-L /chroot/usr/lib"
