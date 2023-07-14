@@ -40,9 +40,9 @@ jobs:
             target: x86_64-unknown-linux-gnu
             docker: ghcr.io/napi-rs/napi-rs/nodejs-rust:lts-debian
             build: |-
-              set -e && 
-              export PKG_CONFIG_SYSROOT_DIR="/" &&
+              set -e &&
               sudo apt-get update && sudo apt-get install libsecret-1-dev -y &&
+              export PKG_CONFIG_PATH="/usr/lib/x86_64-linux-gnu/pkgconfig" &&
               yarn build --target x86_64-unknown-linux-gnu &&
               strip *.node
           - host: ubuntu-latest
@@ -51,7 +51,7 @@ jobs:
               sudo apt-get update && sudo apt-get install libsecret-1-dev -y
               sudo apt-get install gcc-arm-linux-gnueabihf -y
             build: |
-              export PKG_CONFIG_SYSROOT_DIR="/"
+              export PKG_CONFIG_PATH="/usr/lib/arm-linux-gnueabihf/pkgconfig"
               yarn build --target armv7-unknown-linux-gnueabihf
               arm-linux-gnueabihf-strip *.node
           - host: ubuntu-latest
@@ -72,19 +72,19 @@ jobs:
             target: aarch64-unknown-linux-gnu
             docker: ghcr.io/napi-rs/napi-rs/nodejs-rust:lts-debian-aarch64
             build: |-
-              set -e && 
-              export PKG_CONFIG_SYSROOT_DIR="/" &&
+              set -e &&
               sudo apt-get update && sudo apt-get install libsecret-1-dev -y &&
+              export PKG_CONFIG_PATH="/usr/lib/aarch64-linux-gnu/pkgconfig" &&
               yarn build --target aarch64-unknown-linux-gnu &&
               aarch64-unknown-linux-gnu-strip *.node
           - host: ubuntu-latest
             target: aarch64-unknown-linux-musl
             docker: ghcr.io/napi-rs/napi-rs/nodejs-rust:lts-alpine
             build: |-
-              set -e && 
-              export PKG_CONFIG_SYSROOT_DIR="/" &&
+              set -e &&
               apk add libsecret-dev &&
               rustup target add aarch64-unknown-linux-musl &&
+              export PKG_CONFIG_PATH="/usr/lib/pkconfig" &&
               yarn build --target aarch64-unknown-linux-musl &&
               /aarch64-linux-musl-cross/bin/aarch64-linux-musl-strip *.node
           - host: windows-latest
