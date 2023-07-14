@@ -48,10 +48,16 @@ jobs:
           - host: ubuntu-latest
             target: armv7-unknown-linux-gnueabihf
             setup: |
-              sudo apt-get update && sudo apt-get install gcc-multilib libsecret-1-dev -y
+              sudo sed -i "s/^deb/deb [arch=amd64,i386]/g" /etc/apt/sources.list
+              echo "deb [arch=arm64,armhf] http://ports.ubuntu.com/ jammy main universe multiverse restricted" | sudo tee -a /etc/apt/sources.list
+              echo "deb [arch=arm64,armhf] http://ports.ubuntu.com/ jammy-security main universe multiverse restricted" | sudo tee -a /etc/apt/sources.list
+              echo "deb [arch=arm64,armhf] http://ports.ubuntu.com/ jammy-updates main universe multiverse restricted" | sudo tee -a /etc/apt/sources.list
+              sudo dpkg --add-architecture armhf
+              sudo apt-get update && sudo apt-get install libsecret-1-dev:armhf -y
               sudo apt-get install gcc-arm-linux-gnueabihf -y
             build: |
               export PKG_CONFIG_SYSROOT_DIR="/" && export RUSTFLAGS="-L /usr/lib/arm-linux-gnueabihf"
+              export PKG_CONFIG_PATH="/usr/lib/arm-linux-gnueabihf/pkgconfig/"
               yarn build --target armv7-unknown-linux-gnueabihf
               arm-linux-gnueabihf-strip *.node
           - host: ubuntu-latest
@@ -68,28 +74,32 @@ jobs:
               export CFLAGS="-isysroot $SYSROOT -isystem $SYSROOT";
               yarn build --target aarch64-apple-darwin
               strip -x *.node
-          # - host: ubuntu-latest
-          #   target: aarch64-unknown-linux-gnu
-          #   docker: ghcr.io/napi-rs/napi-rs/nodejs-rust:lts-debian-aarch64
-          #   build: |
-          #     set -e
-          #     sudo dpkg --add-architecture arm64
-          #     sudo apt-get update && sudo apt-get install pkg-config libsecret-1-dev:arm64 -y
-          #     export PKG_CONFIG_SYSROOT_DIR="/" && export RUSTFLAGS="-L /usr/lib/aarch64-linux-gnu"
-          #     export PKG_CONFIG_PATH="/usr/lib/aarch64-linux-gnu/pkgconfig/"
-          #     yarn build --target aarch64-unknown-linux-gnu
-          #     aarch64-unknown-linux-gnu-strip *.node
-          # - host: ubuntu-latest
-          #   target: aarch64-unknown-linux-musl
-          #   docker: ghcr.io/napi-rs/napi-rs/nodejs-rust:lts-alpine
-          #   build: |
-          #     set -e
-          #     apk add libsecret-dev
-          #     ls -R /usr/lib*
-          #     rustup target add aarch64-unknown-linux-musl
-          #     export PKG_CONFIG_SYSROOT_DIR="/" && export RUSTFLAGS="-L /usr/lib"
-          #     yarn build --target aarch64-unknown-linux-musl
-          #     /aarch64-linux-musl-cross/bin/aarch64-linux-musl-strip *.node
+          - host: ubuntu-latest
+            target: aarch64-unknown-linux-gnu
+            docker: ghcr.io/napi-rs/napi-rs/nodejs-rust:lts-debian-aarch64
+            build: |
+              set -e
+              sudo sed -i "s/^deb/deb [arch=amd64,i386]/g" /etc/apt/sources.list
+              echo "deb [arch=arm64,armhf] http://ports.ubuntu.com/ jammy main universe multiverse restricted" | sudo tee -a /etc/apt/sources.list
+              echo "deb [arch=arm64,armhf] http://ports.ubuntu.com/ jammy-security main universe multiverse restricted" | sudo tee -a /etc/apt/sources.list
+              echo "deb [arch=arm64,armhf] http://ports.ubuntu.com/ jammy-updates main universe multiverse restricted" | sudo tee -a /etc/apt/sources.list
+              sudo dpkg --add-architecture arm64
+              sudo apt-get update && sudo apt-get install libsecret-1-dev:arm64 -y
+              export PKG_CONFIG_SYSROOT_DIR="/" && export RUSTFLAGS="-L /usr/lib/aarch64-linux-gnu"
+              export PKG_CONFIG_PATH="/usr/lib/aarch64-linux-gnu/pkgconfig/"
+              yarn build --target aarch64-unknown-linux-gnu
+              aarch64-unknown-linux-gnu-strip *.node
+          - host: ubuntu-latest
+            target: aarch64-unknown-linux-musl
+            docker: ghcr.io/napi-rs/napi-rs/nodejs-rust:lts-alpine
+            build: |
+              set -e
+              apk add libsecret-dev
+              ls -R /usr/lib*
+              rustup target add aarch64-unknown-linux-musl
+              export PKG_CONFIG_SYSROOT_DIR="/" && export RUSTFLAGS="-L /usr/lib"
+              yarn build --target aarch64-unknown-linux-musl
+              /aarch64-linux-musl-cross/bin/aarch64-linux-musl-strip *.node
           - host: windows-latest
             target: aarch64-pc-windows-msvc
             build: yarn build --target aarch64-pc-windows-msvc
@@ -323,81 +333,81 @@ jobs:
             set -e
             apk add dbus gnome-keyring
             dbus-run-session -- sh linux-test.sh
-  # test-linux-aarch64-gnu-binding:
-  #   name: Test bindings on aarch64-unknown-linux-gnu - node@${{ matrix.node }}
-  #   needs:
-  #     - build
-  #   strategy:
-  #     fail-fast: false
-  #     matrix:
-  #       node:
-  #         - '14'
-  #         - '16'
-  #         - '18'
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #     - name: Download artifacts
-  #       uses: actions/download-artifact@v3
-  #       with:
-  #         name: bindings-aarch64-unknown-linux-gnu
-  #         path: .
-  #     - name: List packages
-  #       run: ls -R .
-  #       shell: bash
-  #     - name: Install dependencies
-  #       run: |
-  #         yarn config set supportedArchitectures.cpu "arm64"
-  #         yarn config set supportedArchitectures.libc "glibc"
-  #         yarn install
-  #     - name: Set up QEMU
-  #       uses: docker/setup-qemu-action@v2
-  #       with:
-  #         platforms: arm64
-  #     - run: docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
-  #     - name: Setup and run tests
-  #       uses: addnab/docker-run-action@v3
-  #       with:
-  #         image: ghcr.io/napi-rs/napi-rs/nodejs:aarch64-${{ matrix.node }}
-  #         options: '-v ${{ github.workspace }}:/build -w /build --cap-add=IPC_LOCK'
-  #         run: |
-  #           set -e
-  #           apt update -y && apt install -y gnome-keyring
-  #           dbus-run-session -- bash linux-test.sh
-  # test-linux-aarch64-musl-binding:
-  #   name: Test bindings on aarch64-unknown-linux-musl - node@${{ matrix.node }}
-  #   needs:
-  #     - build
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #     - name: Download artifacts
-  #       uses: actions/download-artifact@v3
-  #       with:
-  #         name: bindings-aarch64-unknown-linux-musl
-  #         path: .
-  #     - name: List packages
-  #       run: ls -R .
-  #       shell: bash
-  #     - name: Install dependencies
-  #       run: |
-  #         yarn config set supportedArchitectures.cpu "arm64"
-  #         yarn config set supportedArchitectures.libc "musl"
-  #         yarn install
-  #     - name: Set up QEMU
-  #       uses: docker/setup-qemu-action@v2
-  #       with:
-  #         platforms: arm64
-  #     - run: docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
-  #     - name: Setup and run tests
-  #       uses: addnab/docker-run-action@v3
-  #       with:
-  #         image: multiarch/alpine:aarch64-latest-stable
-  #         options: '-v ${{ github.workspace }}:/build -w /build --cap-add=IPC_LOCK'
-  #         run: |
-  #           set -e
-  #           apk add dbus nodejs npm yarn gnome-keyring
-  #           dbus-run-session -- sh linux-test.sh
+  test-linux-aarch64-gnu-binding:
+    name: Test bindings on aarch64-unknown-linux-gnu - node@${{ matrix.node }}
+    needs:
+      - build
+    strategy:
+      fail-fast: false
+      matrix:
+        node:
+          - '14'
+          - '16'
+          - '18'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: bindings-aarch64-unknown-linux-gnu
+          path: .
+      - name: List packages
+        run: ls -R .
+        shell: bash
+      - name: Install dependencies
+        run: |
+          yarn config set supportedArchitectures.cpu "arm64"
+          yarn config set supportedArchitectures.libc "glibc"
+          yarn install
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+        with:
+          platforms: arm64
+      - run: docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+      - name: Setup and run tests
+        uses: addnab/docker-run-action@v3
+        with:
+          image: ghcr.io/napi-rs/napi-rs/nodejs:aarch64-${{ matrix.node }}
+          options: '-v ${{ github.workspace }}:/build -w /build --cap-add=IPC_LOCK'
+          run: |
+            set -e
+            apt update -y && apt install -y gnome-keyring
+            dbus-run-session -- bash linux-test.sh
+  test-linux-aarch64-musl-binding:
+    name: Test bindings on aarch64-unknown-linux-musl - node@${{ matrix.node }}
+    needs:
+      - build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: bindings-aarch64-unknown-linux-musl
+          path: .
+      - name: List packages
+        run: ls -R .
+        shell: bash
+      - name: Install dependencies
+        run: |
+          yarn config set supportedArchitectures.cpu "arm64"
+          yarn config set supportedArchitectures.libc "musl"
+          yarn install
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+        with:
+          platforms: arm64
+      - run: docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+      - name: Setup and run tests
+        uses: addnab/docker-run-action@v3
+        with:
+          image: multiarch/alpine:aarch64-latest-stable
+          options: '-v ${{ github.workspace }}:/build -w /build --cap-add=IPC_LOCK'
+          run: |
+            set -e
+            apk add dbus nodejs npm yarn gnome-keyring
+            dbus-run-session -- sh linux-test.sh
   test-linux-arm-gnueabihf-binding:
     name: Test bindings on armv7-unknown-linux-gnueabihf - node@${{ matrix.node }}
     needs:
