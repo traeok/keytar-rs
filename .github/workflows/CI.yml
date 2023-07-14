@@ -48,16 +48,10 @@ jobs:
           - host: ubuntu-latest
             target: armv7-unknown-linux-gnueabihf
             setup: |
-              sudo sed -i "s/^deb/deb [arch=amd64,i386]/g" /etc/apt/sources.list
-              echo "deb [arch=arm64,armhf] http://ports.ubuntu.com/ jammy main universe multiverse restricted" | sudo tee -a /etc/apt/sources.list
-              echo "deb [arch=arm64,armhf] http://ports.ubuntu.com/ jammy-security main universe multiverse restricted" | sudo tee -a /etc/apt/sources.list
-              echo "deb [arch=arm64,armhf] http://ports.ubuntu.com/ jammy-updates main universe multiverse restricted" | sudo tee -a /etc/apt/sources.list
-              sudo dpkg --add-architecture armhf
-              sudo apt-get update && sudo apt-get install libsecret-1-dev:armhf -y
+              sudo apt-get update && sudo apt-get install gcc-multilib libsecret-1-dev -y
               sudo apt-get install gcc-arm-linux-gnueabihf -y
             build: |
               export PKG_CONFIG_SYSROOT_DIR="/" && export RUSTFLAGS="-L /usr/lib/arm-linux-gnueabihf"
-              export PKG_CONFIG_PATH="/usr/lib/arm-linux-gnueabihf/pkgconfig/"
               yarn build --target armv7-unknown-linux-gnueabihf
               arm-linux-gnueabihf-strip *.node
           - host: ubuntu-latest
