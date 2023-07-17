@@ -52,7 +52,7 @@ jobs:
               set -e
               sudo sed -i "s/^deb /deb [arch=amd64,i386] /g" /etc/apt/sources.list
               sudo dpkg --add-architecture i386
-              sudo apt-get update && sudo apt-get install libsecret-1-dev:i386 -y
+              sudo apt-get update && sudo apt-get install gcc-i686-linux-gnu libsecret-1-dev:i386 -y
               rustup target add i686-unknown-linux-gnu
               export PKG_CONFIG_SYSROOT_DIR="/" && export RUSTFLAGS="-L /usr/lib/i386-linux-gnu"
               export PKG_CONFIG_PATH="/usr/lib/i386-linux-gnu/pkgconfig/"
