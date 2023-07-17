@@ -50,6 +50,7 @@ jobs:
             docker: ghcr.io/napi-rs/napi-rs/nodejs-rust:lts-debian
             build: |
               set -e
+              sudo sed -i "s/^deb /deb [arch=amd64,i386] /g" /etc/apt/sources.list
               sudo apt-get update && sudo apt-get install libsecret-1-dev:i386 -y
               export RUSTFLAGS="-L /usr/lib/i386-linux-gnu"
               yarn build --target i686-unknown-linux-gnu
