@@ -1,32 +1,43 @@
+[build]
+pre-build = [
+    "dpkg --add-architecture $CROSS_DEB_ARCH",
+    "apt-get update && apt-get install -y libsecret-1-dev:$CROSS_DEB_ARCH",
+]
+
 [target.aarch64-unknown-linux-gnu]
-pre-build = ["dpkg --add-architecture $CROSS_DEB_ARCH && apt-get update",
-"DEBIAN_FRONTEND=noninteractive apt-get install libsecret-1-dev:arm64 -y"]
 image = "ghcr.io/cross-rs/aarch64-unknown-linux-gnu:main"
 
 [target.aarch64-unknown-linux-musl]
-pre-build = ["dpkg --add-architecture $CROSS_DEB_ARCH && apt-get update",
-"DEBIAN_FRONTEND=noninteractive apt-get install libsecret-1-dev:arm64 -y"]
 image = "ghcr.io/cross-rs/aarch64-unknown-linux-musl:main"
 
 [target.armv7-unknown-linux-gnueabihf]
-pre-build = ["dpkg --add-architecture $CROSS_DEB_ARCH && apt-get update",
-"DEBIAN_FRONTEND=noninteractive apt-get install libsecret-1-dev:armhf -y"]
+pre-build = [
+    "dpkg --add-architecture $CROSS_DEB_ARCH && apt-get update",
+    "DEBIAN_FRONTEND=noninteractive apt-get install libsecret-1-dev:armhf gcc-arm-linux-gnueabihf -y",
+    'export PKG_CONFIG_SYSROOT_DIR="/" && export RUSTFLAGS="-L /usr/lib/arm-linux-gnueabihf"',
+    'export PKG_CONFIG_PATH="/usr/lib/arm-linux-gnueabihf/pkgconfig/"',
+]
 image = "ghcr.io/cross-rs/armv7-unknown-linux-gnueabihf:main"
 
 [target.i686-unknown-linux-gnu]
-pre-build = ["dpkg --add-architecture $CROSS_DEB_ARCH && apt-get update",
-"DEBIAN_FRONTEND=noninteractive apt-get install gcc-i686-linux-gnu libsecret-1-dev:i386 -y",
-'export PKG_CONFIG_SYSROOT_DIR="/" && export RUSTFLAGS="-L /usr/lib/i386-linux-gnu"',
-'export PKG_CONFIG_PATH="/usr/lib/i386-linux-gnu/pkgconfig/"',
+pre-build = [
+    "dpkg --add-architecture $CROSS_DEB_ARCH && apt-get update",
+    "DEBIAN_FRONTEND=noninteractive apt-get install gcc-i686-linux-gnu libsecret-1-dev:i386 -y",
+    'export PKG_CONFIG_SYSROOT_DIR="/" && export RUSTFLAGS="-L /usr/lib/i386-linux-gnu"',
+    'export PKG_CONFIG_PATH="/usr/lib/i386-linux-gnu/pkgconfig/"',
 ]
 image = "ghcr.io/cross-rs/i686-unknown-linux-gnu:main"
 
 [target.x86_64-unknown-linux-gnu]
-pre-build = ["apt-get update",
-"DEBIAN_FRONTEND=noninteractive apt-get install libsecret-1-dev -y"]
+pre-build = [
+    "apt-get update",
+    "DEBIAN_FRONTEND=noninteractive apt-get install libsecret-1-dev -y",
+]
 image = "ghcr.io/cross-rs/x86_64-unknown-linux-gnu:main"
 
 [target.x86_64-unknown-linux-musl]
-pre-build = ["apt-get update",
-"DEBIAN_FRONTEND=noninteractive apt-get install libsecret-1-dev -y"]
+pre-build = [
+    "apt-get update",
+    "DEBIAN_FRONTEND=noninteractive apt-get install libsecret-1-dev -y",
+]
 image = "ghcr.io/cross-rs/x86_64-unknown-linux-musl:main"
