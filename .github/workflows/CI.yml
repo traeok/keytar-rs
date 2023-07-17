@@ -122,6 +122,7 @@ jobs:
           node-version: 18
           check-latest: true
           cache: yarn
+      - run: npm install -g yarn
       - name: Install
         uses: dtolnay/rust-toolchain@stable
         if: ${{ !matrix.settings.docker }}
