@@ -1,7 +1,8 @@
 extern crate libsecret;
-use glib::translate::{ToGlibPtr, FromGlibPtrContainer};
-use libsecret::{prelude::CollectionExtManual, traits::ItemExt, SearchFlags, Service};
-use libsecret_sys::SecretService;
+use glib::translate::{FromGlibPtrContainer, ToGlibPtr};
+use libsecret::{
+  prelude::CollectionExtManual, traits::ItemExt, SearchFlags, Service, ServiceFlags,
+};
 use std::collections::HashMap;
 
 use super::error::KeytarError;
@@ -84,51 +85,52 @@ pub fn find_credentials(
   service: &String,
   credentials: &mut Vec<(String, String)>,
 ) -> Result<bool, KeytarError> {
+  let secret_service = Service::sync(
+    ServiceFlags::OPEN_SESSION | ServiceFlags::LOAD_COLLECTIONS,
+    gio::Cancellable::NONE,
+  )?;
   let collection = match libsecret::Collection::for_alias_sync(
-    libsecret::Service::NONE,
-    libsecret::COLLECTION_DEFAULT,
+    Some(&secret_service),
+    "default",
     libsecret::CollectionFlags::LOAD_ITEMS,
-    gio::Cancellable::NONE
+    gio::Cancellable::NONE,
   )? {
     Some(col) => col,
-    None => return Err(KeytarError::Os("Unable to open libsecret collection".to_owned()))
+    None => {
+      return Err(KeytarError::Os(
+        "Unable to open libsecret collection".to_owned(),
+      ))
+    }
   };
 
   match collection.search_sync(
     None,
     HashMap::from([("service", service.as_str())]),
-    SearchFlags::ALL,
+    SearchFlags::ALL | SearchFlags::LOAD_SECRETS,
     gio::Cancellable::NONE,
   ) {
     Ok(vec) => {
       let valid_creds: Vec<(String, String)> = vec
-        .into_iter()
-        .map(|c| {
+        .iter()
+        .filter_map(|item| {
           let attrs: HashMap<String, String> = unsafe {
-            let attrs = libsecret_sys::secret_item_get_attributes(c.to_glib_none().0);
-
+            let attrs = libsecret_sys::secret_item_get_attributes(item.to_glib_none().0);
             FromGlibPtrContainer::from_glib_full(attrs)
           };
-          match c.secret() {
+          match item.secret() {
             Some(secret) => {
               let bytes = secret.get();
               unsafe {
                 libsecret_sys::secret_value_unref(secret.as_ptr() as *mut _);
               }
-              return Some((attrs.get("account").unwrap().clone(), bytes));
+
+              let acc = attrs.get("account").unwrap().clone();
+              let pw = String::from_utf8(bytes).unwrap_or("".to_string());
+
+              Some((acc, pw))
             }
             None => None,
           }
-        })
-        .filter(|v| v.is_some())
-        .filter_map(|val| {
-          let (acc, bytes) = val.unwrap();
-          let pw = String::from_utf8(bytes).unwrap_or("".to_string());
-          if pw.is_empty() {
-            return None;
-          }
-
-          return Some((acc, pw));
         })
         .collect();
       *credentials = valid_creds;
@@ -141,6 +143,6 @@ pub fn find_credentials(
       } else {
         Err(KeytarError::Os(err.message().to_owned()))
       }
-    },
+    }
   }
 }
