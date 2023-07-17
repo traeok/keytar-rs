@@ -95,7 +95,7 @@ jobs:
             build: |
               set -e
               apk add pkgconfig
-              apk add --arch aarch64 -X "http://dl-cdn.alpinelinux.org/alpine/latest-stable/main/" --root /chroot --initdb --allow-untrusted --no-scripts libsecret-dev
+              apk add --arch aarch64 -X "https://dl-cdn.alpinelinux.org/alpine/latest-stable/main/" --root /chroot --initdb --allow-untrusted --no-scripts libsecret-dev
               rustup target add aarch64-unknown-linux-musl
               export PKG_CONFIG_SYSROOT_DIR="/chroot" && export RUSTFLAGS="-L /chroot/usr/lib"
               export PKG_CONFIG_PATH="/chroot/usr/lib/pkgconfig/"
@@ -332,7 +332,7 @@ jobs:
           options: '-v ${{ github.workspace }}:/build -w /build --cap-add=IPC_LOCK'
           run: |
             set -e
-            apk add dbus gnome-keyring
+            apk add dbus gnome-keyring libsecret
             dbus-run-session -- sh linux-test.sh
   test-linux-aarch64-gnu-binding:
     name: Test bindings on aarch64-unknown-linux-gnu - node@${{ matrix.node }}
@@ -407,7 +407,7 @@ jobs:
           options: '-v ${{ github.workspace }}:/build -w /build --cap-add=IPC_LOCK'
           run: |
             set -e
-            apk add dbus nodejs npm yarn gnome-keyring
+            apk add dbus nodejs npm yarn gnome-keyring libsecret
             dbus-run-session -- sh linux-test.sh
   test-linux-arm-gnueabihf-binding:
     name: Test bindings on armv7-unknown-linux-gnueabihf - node@${{ matrix.node }}
