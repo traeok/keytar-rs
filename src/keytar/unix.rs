@@ -16,6 +16,17 @@ impl From<glib::error::Error> for KeytarError {
   }
 }
 
+fn get_schema() -> libsecret::Schema {
+  libsecret::Schema::new(
+    "org.freedesktop.Secret.Generic",
+    libsecret::SchemaFlags::NONE,
+    HashMap::from([
+      ("service", libsecret::SchemaAttributeType::String),
+      ("account", libsecret::SchemaAttributeType::String),
+    ]),
+  )
+}
+
 pub fn set_password(
   service: &String,
   account: &String,
@@ -25,7 +36,7 @@ pub fn set_password(
 
   let collection = libsecret::COLLECTION_DEFAULT;
   match libsecret::password_store_sync(
-    None,
+    Some(&get_schema()),
     attributes,
     Some(collection),
     format!("{}/{}", service, account).as_str(),
@@ -40,7 +51,7 @@ pub fn set_password(
 pub fn get_password(service: &String, account: &String) -> Result<Option<String>, KeytarError> {
   let attributes = HashMap::from([("service", service.as_str()), ("account", account.as_str())]);
 
-  match libsecret::password_lookup_sync(None, attributes, gio::Cancellable::NONE) {
+  match libsecret::password_lookup_sync(Some(&get_schema()), attributes, gio::Cancellable::NONE) {
     Ok(pw) => match pw {
       Some(pass) => Ok(Some(pass.to_string())),
       None => Ok(None),
@@ -58,7 +69,7 @@ pub fn find_password(service: &String) -> Result<Option<String>, KeytarError> {
     HashMap::from([("service", service.as_str())])
   };
 
-  match libsecret::password_lookup_sync(None, attributes, gio::Cancellable::NONE) {
+  match libsecret::password_lookup_sync(Some(&get_schema()), attributes, gio::Cancellable::NONE) {
     Ok(pw) => match pw {
       Some(pass) => Ok(Some(pass.to_string())),
       None => Ok(None),
@@ -69,7 +80,7 @@ pub fn find_password(service: &String) -> Result<Option<String>, KeytarError> {
 
 pub fn delete_password(service: &String, account: &String) -> Result<bool, KeytarError> {
   match libsecret::password_clear_sync(
-    None,
+    Some(&get_schema()),
     HashMap::from([("service", service.as_str()), ("account", account.as_str())]),
     gio::Cancellable::NONE,
   ) {
@@ -104,7 +115,7 @@ pub fn find_credentials(
   };
 
   match collection.search_sync(
-    None,
+    Some(&get_schema()),
     HashMap::from([("service", service.as_str())]),
     SearchFlags::ALL | SearchFlags::LOAD_SECRETS,
     gio::Cancellable::NONE,
