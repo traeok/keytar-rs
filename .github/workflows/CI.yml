@@ -42,7 +42,7 @@ jobs:
               cargo install cross
             build: |
               set -e
-              CARGO="cross napi build" yarn build --target x86_64-unknown-linux-gnu
+              CARGO="cross napi" yarn build --target x86_64-unknown-linux-gnu
               strip *.node
           - host: ubuntu-latest
             target: i686-unknown-linux-gnu
