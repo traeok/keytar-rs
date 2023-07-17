@@ -643,6 +643,7 @@ dependencies = [
  "gio",
  "glib",
  "libsecret",
+ "libsecret-sys",
  "napi",
  "napi-build",
  "napi-derive",
