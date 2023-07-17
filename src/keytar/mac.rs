@@ -73,22 +73,26 @@ pub fn find_credentials(
   service: &String,
   credentials: &mut Vec<(String, String)>,
 ) -> Result<bool, KeytarError> {
-  let search_results = ItemSearchOptions::new()
+  match ItemSearchOptions::new()
     .class(ItemClass::generic_password())
     .label(service.as_str())
     .limit(i32::MAX as i64)
     .load_attributes(true)
     .load_data(true)
     .load_refs(true)
-    .search()?;
-
-  for result in search_results {
-    if let Some(result_map) = result.simplify_dict() {
-      credentials.push((
-        result_map.get("acct").unwrap().to_owned(),
-        result_map.get("v_Data").unwrap().to_owned(),
-      ))
-    }
+    .search() {
+    Ok(search_results) => {
+      for result in search_results {
+        if let Some(result_map) = result.simplify_dict() {
+          credentials.push((
+            result_map.get("acct").unwrap().to_owned(),
+            result_map.get("v_Data").unwrap().to_owned(),
+          ))
+        }
+      }
+      return Ok(!credentials.is_empty());
+    },
+    Err(err) if err.code() == ERR_SEC_ITEM_NOT_FOUND => Ok(false),
+    Err(err) => Err(KeytarError::from(err)),
   }
-  Ok(!credentials.is_empty())
 }
