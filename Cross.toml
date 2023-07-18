@@ -1,30 +1,40 @@
 [build]
 pre-build = [
     "dpkg --add-architecture $CROSS_DEB_ARCH",
-    "apt-get update && apt-get install -y libsecret-1-dev:$CROSS_DEB_ARCH",
+    "apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y libsecret-1-dev:$CROSS_DEB_ARCH",
+]
+
+[build.env]
+passthrough = [
+    "PKG_CONFIG_SYSROOT_DIR",
+    "PKG_CONFIG_PATH",
+    "RUSTFLAGS"
 ]
 
 [target.aarch64-unknown-linux-gnu]
 image = "ghcr.io/cross-rs/aarch64-unknown-linux-gnu:main"
 
 [target.aarch64-unknown-linux-musl]
+# needed because libsecret is not present in musl-specific dpkg arch
+pre-build = [
+    "dpkg --add-architecture arm64",
+    "apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y libsecret-1-dev:arm64",
+]
 image = "ghcr.io/cross-rs/aarch64-unknown-linux-musl:main"
 
 [target.armv7-unknown-linux-gnueabihf]
+# needed to grab gcc (should be able to avoid using zig here, too)
 pre-build = [
     "dpkg --add-architecture $CROSS_DEB_ARCH && apt-get update",
-    "DEBIAN_FRONTEND=noninteractive apt-get install libsecret-1-dev:armhf gcc-arm-linux-gnueabihf -y",
-    'export PKG_CONFIG_SYSROOT_DIR="/" && export RUSTFLAGS="-L /usr/lib/arm-linux-gnueabihf"',
-    'export PKG_CONFIG_PATH="/usr/lib/arm-linux-gnueabihf/pkgconfig/"',
+    "DEBIAN_FRONTEND=noninteractive apt-get install libsecret-1-dev:armhf gcc-arm-linux-gnueabihf -y"
 ]
 image = "ghcr.io/cross-rs/armv7-unknown-linux-gnueabihf:main"
 
 [target.i686-unknown-linux-gnu]
+# needed because i686 gcc is required to succeed
 pre-build = [
     "dpkg --add-architecture $CROSS_DEB_ARCH && apt-get update",
-    "DEBIAN_FRONTEND=noninteractive apt-get install gcc-i686-linux-gnu libsecret-1-dev:i386 -y",
-    'export PKG_CONFIG_SYSROOT_DIR="/" && export RUSTFLAGS="-L /usr/lib/i386-linux-gnu"',
-    'export PKG_CONFIG_PATH="/usr/lib/i386-linux-gnu/pkgconfig/"',
+    "DEBIAN_FRONTEND=noninteractive apt-get install gcc-i686-linux-gnu libsecret-1-dev:i386 -y"
 ]
 image = "ghcr.io/cross-rs/i686-unknown-linux-gnu:main"
 

@@ -48,6 +48,7 @@ jobs:
             setup: cargo install cross
             build: |
               set -e
+              chmod a+x configure-cross.sh && source configure-cross.sh i686-unknown-linux-gnu
               CARGO=cross yarn build --target i686-unknown-linux-gnu
               strip *.node
           - host: ubuntu-latest
@@ -55,6 +56,7 @@ jobs:
             setup: cargo install cross
             build: |
               set -e
+              chmod a+x configure-cross.sh && source configure-cross.sh armv7-unknown-linux-gnueabihf
               CARGO=cross yarn build --target armv7-unknown-linux-gnueabihf
               arm-linux-gnueabihf-strip *.node
           - host: ubuntu-latest
@@ -79,6 +81,7 @@ jobs:
             setup: cargo install cross
             build: |
               set -e
+              chmod a+x configure-cross.sh && source configure-cross.sh aarch64-unknown-linux-gnu
               CARGO=cross yarn build --target aarch64-unknown-linux-gnu
               aarch64-linux-gnu-strip *.node
           - host: ubuntu-latest
@@ -86,6 +89,7 @@ jobs:
             setup: cargo install cross
             build: |
               set -e
+              chmod a+x configure-cross.sh && source configure-cross.sh aarch64-unknown-linux-gnu
               CARGO=cross yarn build --target aarch64-unknown-linux-musl
               aarch64-linux-musl-strip *.node
           - host: windows-latest
