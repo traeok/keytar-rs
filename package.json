@@ -9,14 +9,25 @@
   "napi": {
     "name": "keytar-rs",
     "triples": {
+      "defaults": true,
       "additional": [
-        "aarch64-apple-darwin"
+        "x86_64-unknown-linux-musl",
+        "aarch64-unknown-linux-gnu",
+        "i686-unknown-linux-gnu",
+        "i686-pc-windows-msvc",
+        "armv7-unknown-linux-gnueabihf",
+        "aarch64-apple-darwin",
+        "aarch64-linux-android",
+        "x86_64-unknown-freebsd",
+        "aarch64-unknown-linux-musl",
+        "aarch64-pc-windows-msvc",
+        "armv7-linux-androideabi"
       ]
     }
   },
   "license": "MIT",
   "devDependencies": {
-    "@napi-rs/cli": "^2.16.1",
+    "@napi-rs/cli": "^2.16.2",
     "ava": "^4.3.3"
   },
   "ava": {

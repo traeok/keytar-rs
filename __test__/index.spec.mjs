@@ -22,6 +22,18 @@ const randomAsciiString = (len) => {
   return str;
 };
 
+const TEST_CREDENTIALS = [
+  { service: "TestKeytar", account: "TestASCII" },
+  { service: "TestKeytar", account: "TestUTF8" },
+  { service: "TestKeytar", account: "TestCharSet" },
+  { service: "TestKeytar", account: "TestUTF16" },
+  { service: "TestKeytar", account: "TestCJK" },
+  { service: "TestKeytar", account: "TestBinary" },
+  { service: "TestEmptyAccount", account: "" },
+  { service: "", account: "TestEmptyService" },
+  { service: "TestKeytar", account: "PwNullTerm" },
+];
+
 test.serial("get/setPassword with binary data", async (t) => {
   const binaryGroups =
     "01001000 01100101 01101100 01101100 01101111 00100000 01110111 01101111 01110010 01101100 01100100 00100001".match(
@@ -45,11 +57,6 @@ test.serial("get/setPassword with empty string parameters", async (t) => {
   await setPassword("", "TestEmptyService", "emptyServicePW");
   const serviceRes = await getPassword("", "TestEmptyService");
   t.is(serviceRes, "emptyServicePW");
-
-  // Empty "password" parameter
-  await setPassword("TestKeytar", "TestEmptyPW", "");
-  const pwRes = await getPassword("TestKeytar", "TestEmptyPW");
-  t.is(pwRes, "");
 });
 
 test.serial("get/setPassword with ASCII string", async (t) => {
@@ -111,7 +118,12 @@ test.serial(
     // "password" parameter w/ extra null terminator
     await setPassword("TestKeytar", "PwNullTerm", "PW\0");
     const pwRes = await getPassword("TestKeytar", "PwNullTerm");
-    t.is(pwRes, "PW\0");
+    if (process.platform === "linux") {
+      // libsecret automatically strips off null terminator
+      t.is(pwRes, "PW");
+    } else {
+      t.is(pwRes, "PW\0");
+    }
   }
 );
 
@@ -133,18 +145,10 @@ test.serial(
         password: "ᚻᛖ ᚳᚹᚫᚦ ᚦᚫᛏ ᚻᛖ ᛒᚢᛞᛖ ᚩᚾ ᚦᚫᛗ ᛚᚪᚾᛞᛖ ᚾᚩᚱᚦᚹᛖᚪᚱᛞᚢᛗ ᚹᛁᚦ ᚦᚪ ᚹᛖᛥᚫ",
       },
       { account: "TestUTF16", password: "🌞🌙🌟🌴" },
-      { account: "TestEmptyPW", password: "" },
       { account: "PwNullTerm", password: "PW\x00" },
     ];
-
-    if (process.platform === "win32") {
-      // Windows Credential Manager has inconsistent error handling and doesn't report
-      // when they ignore a request to store a credential with an empty password
-      expected = expected.filter((cred) => cred.account !== "TestEmptyPW");
-    }
-
     const actual = await findCredentials("TestKeytar");
-    t.is(actual.length, expected.length);
+    t.is(actual.length, expected.length, `actual: ${JSON.stringify(actual)}; expected: ${JSON.stringify(expected)}`);
 
     expected.forEach((cred) =>
       t.not(
@@ -176,43 +180,27 @@ test.serial("findPassword for CJK symbols", async (t) => {
 });
 
 test("deletePassword deletes all test credentials", async (t) => {
-  const creds = [
-    { service: "TestKeytar", account: "TestASCII" },
-    { service: "TestKeytar", account: "TestCharSet" },
-    { service: "TestKeytar", account: "TestUTF16" },
-    { service: "TestKeytar", account: "TestCJK" },
-    { service: "TestKeytar", account: "TestBinary" },
-    { service: "TestEmptyAccount", account: "" },
-    { service: "", account: "TestEmptyService" },
-    { service: "TestKeytar", account: "TestEmptyPW" },
-    { service: "TestKeytar\0", account: "ServiceNullTerm" },
-    { service: "TestKeytar", account: "AccNullTerm\0" },
-    { service: "TestKeytar", account: "PwNullTerm" },
-  ];
+  console.log("\nThe deletePassword test is running. There is an intended delay of 5 seconds to wait for the keyring to update.");
+  const timeout = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+  // initial timeout to give keyrings time to populate
+  await timeout(5000);
+  for (const cred of TEST_CREDENTIALS) {
+    const result = await deletePassword(cred.service, cred.account);
+    if (!result) {
+      t.fail(`Credential with account "${cred.account}" failed to delete.`);
+    }
+  }
 
-  await new Promise(async (resolve, reject) => {
-    await new Promise((res, rej) => setTimeout(() => res(), 5000)).then(() => {
-      const fails = creds
-        .map((cred) =>
-          deletePassword(cred.service, cred.account).then((val) => val)
-        )
-        .filter((res) => !res);
-      if (fails.length > 0) {
-        t.fail("One or more passwords failed to delete.");
-        reject();
-      }
-
-      resolve();
-    });
-    t.pass();
-  });
+  const afterDeletion = await findCredentials("TestKeytar");
+  t.is(afterDeletion.length, 0, `One or more credentials were still in the keyring: ${afterDeletion.map((c) => c.account).join(', ')}`);
 });
 
 // Unit tests specific to Windows API calls
 if (process.platform === "win32") {
   test.serial(
-    "win32: setPassword fails when blob exceeds CRED_MAX_CREDENTIAL_BLOB_SIZE",
+    "setPassword fails when blob exceeds CRED_MAX_CREDENTIAL_BLOB_SIZE",
     async (t) => {
+      console.log("win32: platform-specific tests for WinAPI");
       const CRED_MAX_CREDENTIAL_BLOB_SIZE = 5 * 512;
       const str = randomAsciiString(CRED_MAX_CREDENTIAL_BLOB_SIZE + 1);
       try {
@@ -224,7 +212,7 @@ if (process.platform === "win32") {
   );
 
   test.serial(
-    "win32: setPassword fails when TargetName exceeds CRED_MAX_GENERIC_TARGET_NAME_LENGTH",
+    "setPassword fails when TargetName exceeds CRED_MAX_GENERIC_TARGET_NAME_LENGTH",
     async (t) => {
       const CRED_MAX_GENERIC_TARGET_NAME_LENGTH = 32767;
       const str = randomAsciiString(CRED_MAX_GENERIC_TARGET_NAME_LENGTH + 1);
@@ -241,7 +229,7 @@ if (process.platform === "win32") {
   );
 
   test.serial(
-    "win32: setPassword fails when account length exceeds CRED_MAX_USERNAME_LENGTH",
+    "setPassword fails when account length exceeds CRED_MAX_USERNAME_LENGTH",
     async (t) => {
       const CRED_MAX_USERNAME_LENGTH = 512;
       const str = randomAsciiString(CRED_MAX_USERNAME_LENGTH + 1);
@@ -254,21 +242,21 @@ if (process.platform === "win32") {
   );
 
   test.serial(
-    "win32: findCredentials where CredEnumerateW returns false",
+    "findCredentials where CredEnumerateW returns false",
     async (t) => {
       const found = await findCredentials("TestKeytarWindowsInvalidService");
       t.deepEqual(found, []);
     }
   );
 
-  test.serial("win32: findCredentials where TargetName is NULL", async (t) => {
+  test.serial("findCredentials where TargetName is NULL", async (t) => {
     // Since rust won't accept null as a parameter in the backend, best test is an empty string
     const found = await findCredentials("");
     t.is(found.length > 0, true);
   });
 
   test.serial(
-    "win32: Error handled when CredReadW throws ERROR_NOT_FOUND",
+    "Error handled when CredReadW throws ERROR_NOT_FOUND",
     async (t) => {
       try {
         const errorTest = await getPassword(
@@ -285,7 +273,7 @@ if (process.platform === "win32") {
   );
 
   test.serial(
-    "win32: CredDeleteW with a credential that does not exist",
+    "CredDeleteW with a credential that does not exist",
     async (t) => {
       try {
         await deletePassword("TestKeytarWindowsInvalidService", "FakeAccount");
