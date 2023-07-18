@@ -16,7 +16,7 @@ image = "ghcr.io/cross-rs/aarch64-unknown-linux-gnu:main"
 
 [target.aarch64-unknown-linux-musl]
 pre-build = [
-    "apk add libsecret-dev musl-dev",
+    "apk add libsecret-dev",
 ]
 image = "arm64v8/rust:alpine"
 
@@ -45,6 +45,6 @@ image = "ghcr.io/cross-rs/x86_64-unknown-linux-gnu:main"
 
 [target.x86_64-unknown-linux-musl]
 pre-build = [
-    "apk add libsecret-dev musl-dev",
+    "apk add libsecret-dev",
 ]
 image = "amd64/rust:alpine"
