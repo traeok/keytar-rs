@@ -62,7 +62,8 @@ jobs:
               arm-linux-gnueabihf-strip *.node
           - host: ubuntu-latest
             target: x86_64-unknown-linux-musl
-            setup: cargo install cross
+            docker: amd64/rust:alpine
+            setup: apk add nodejs npm yarn && cargo install cross
             build: |
               set -e
               CARGO=cross yarn build --target x86_64-unknown-linux-musl
@@ -88,6 +89,7 @@ jobs:
               aarch64-linux-gnu-strip *.node
           - host: ubuntu-latest
             target: aarch64-unknown-linux-musl
+            docker: arm64v8/rust:alpine
             setup: cargo install cross
             build: |
               set -e
