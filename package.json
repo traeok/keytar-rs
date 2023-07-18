@@ -28,10 +28,9 @@
   "scripts": {
     "artifacts": "napi artifacts",
     "build": "napi build --platform --release",
-    "build:musl": "napi build --platform --release",
+    "build:musl": "napi build --platform --release \"$@\" && strip *.node",
     "build:debug": "napi build --platform",
     "prepare": "napi build --platform --release",
-    "postbuild:musl": "echo 'stripping node binary...' && strip *.node && echo 'Done stripping node binary'",
     "postinstall": "node -e \"if(!require('fs').existsSync('.git')) process.exit(1);\" || napi build --platform --release",
     "prepublishOnly": "napi prepublish -t npm",
     "test": "ava",
