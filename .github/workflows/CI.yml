@@ -56,6 +56,7 @@ jobs:
             setup: cargo install cross
             build: |
               set -e
+              sudo apt update && sudo apt install binutils-arm-linux-gnueabihf -y
               chmod a+x configure-cross.sh && source configure-cross.sh armv7-unknown-linux-gnueabihf
               CARGO=cross yarn build --target armv7-unknown-linux-gnueabihf
               arm-linux-gnueabihf-strip *.node
@@ -81,6 +82,7 @@ jobs:
             setup: cargo install cross
             build: |
               set -e
+              sudo apt update && sudo apt install binutils-aarch64-linux-gnu -y
               chmod a+x configure-cross.sh && source configure-cross.sh aarch64-unknown-linux-gnu
               CARGO=cross yarn build --target aarch64-unknown-linux-gnu
               aarch64-linux-gnu-strip *.node
@@ -122,10 +124,10 @@ jobs:
             .cargo-cache
             target/
           key: ${{ matrix.settings.target }}-cargo-${{ matrix.settings.host }}
-      - uses: goto-bus-stop/setup-zig@v2
-        if: ${{ matrix.settings.target == 'armv7-unknown-linux-gnueabihf' }}
-        with:
-          version: 0.10.1
+      # - uses: goto-bus-stop/setup-zig@v2
+      #   if: ${{ matrix.settings.target == 'armv7-unknown-linux-gnueabihf' }}
+      #   with:
+      #     version: 0.10.1
       - name: Setup toolchain
         run: ${{ matrix.settings.setup }}
         if: ${{ matrix.settings.setup }}
