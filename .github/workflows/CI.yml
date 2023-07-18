@@ -82,11 +82,15 @@ jobs:
               CARGO=cross yarn build --target aarch64-unknown-linux-gnu
           - host: ubuntu-latest
             target: aarch64-unknown-linux-musl
-            setup: cargo install cross
+            docker: ghcr.io/napi-rs/napi-rs/nodejs-rust:lts-alpine
             build: |
               set -e
-              source configure-cross.sh aarch64-unknown-linux-musl
-              CARGO=cross yarn build --target aarch64-unknown-linux-musl
+              apk add pkgconfig
+              apk add --arch aarch64 -X "https://dl-cdn.alpinelinux.org/alpine/latest-stable/main/" --root /chroot --initdb --allow-untrusted --no-scripts libsecret-dev
+              rustup target add aarch64-unknown-linux-musl
+              export PKG_CONFIG_SYSROOT_DIR="/chroot" && export RUSTFLAGS="-L /chroot/usr/lib"
+              export PKG_CONFIG_PATH="/chroot/usr/lib/pkgconfig/"
+              yarn build --target aarch64-unknown-linux-musl
           - host: windows-latest
             target: aarch64-pc-windows-msvc
             build: yarn build --target aarch64-pc-windows-msvc
