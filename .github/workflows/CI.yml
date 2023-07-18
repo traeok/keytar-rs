@@ -48,7 +48,7 @@ jobs:
             setup: cargo install cross
             build: |
               set -e
-              chmod a+x configure-cross.sh && source configure-cross.sh i686-unknown-linux-gnu
+              source configure-cross.sh i686-unknown-linux-gnu
               CARGO=cross yarn build --target i686-unknown-linux-gnu
               strip *.node
           - host: ubuntu-latest
@@ -57,17 +57,13 @@ jobs:
             build: |
               set -e
               sudo apt update && sudo apt install binutils-arm-linux-gnueabihf -y
-              chmod a+x configure-cross.sh && source configure-cross.sh armv7-unknown-linux-gnueabihf
+              source configure-cross.sh armv7-unknown-linux-gnueabihf
               CARGO=cross yarn build --target armv7-unknown-linux-gnueabihf
               arm-linux-gnueabihf-strip *.node
           - host: ubuntu-latest
             target: x86_64-unknown-linux-musl
-            docker: amd64/rust:alpine
-            setup: apk add nodejs npm yarn && cargo install cross
-            build: |
-              set -e
-              CARGO=cross yarn build --target x86_64-unknown-linux-musl
-              x86_64-linux-musl-strip *.node
+            setup: cargo install cross
+            build: CARGO=cross yarn build:musl --target x86_64-unknown-linux-musl
           - host: macos-latest
             target: aarch64-apple-darwin
             build: |
@@ -84,18 +80,16 @@ jobs:
             build: |
               set -e
               sudo apt update && sudo apt install binutils-aarch64-linux-gnu -y
-              chmod a+x configure-cross.sh && source configure-cross.sh aarch64-unknown-linux-gnu
+              source configure-cross.sh aarch64-unknown-linux-gnu
               CARGO=cross yarn build --target aarch64-unknown-linux-gnu
               aarch64-linux-gnu-strip *.node
           - host: ubuntu-latest
             target: aarch64-unknown-linux-musl
-            docker: arm64v8/rust:alpine
             setup: cargo install cross
             build: |
               set -e
-              chmod a+x configure-cross.sh && source configure-cross.sh aarch64-unknown-linux-gnu
-              CARGO=cross yarn build --target aarch64-unknown-linux-musl
-              aarch64-linux-musl-strip *.node
+              source configure-cross.sh aarch64-unknown-linux-gnu
+              CARGO=cross yarn build:musl --target aarch64-unknown-linux-musl
           - host: windows-latest
             target: aarch64-pc-windows-msvc
             build: yarn build --target aarch64-pc-windows-msvc
