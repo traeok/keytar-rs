@@ -28,7 +28,6 @@
   "scripts": {
     "artifacts": "napi artifacts",
     "build": "napi build --platform --release",
-    "build:musl": "napi build --platform --release \"$@\" && strip *.node",
     "build:debug": "napi build --platform",
     "prepare": "napi build --platform --release",
     "postinstall": "node -e \"if(!require('fs').existsSync('.git')) process.exit(1);\" || napi build --platform --release",

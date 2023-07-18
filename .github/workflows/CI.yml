@@ -42,7 +42,6 @@ jobs:
             build: |
               set -e
               CARGO=cross yarn build --target x86_64-unknown-linux-gnu
-              strip *.node
           - host: ubuntu-latest
             target: i686-unknown-linux-gnu
             setup: cargo install cross
@@ -50,7 +49,7 @@ jobs:
               set -e
               source configure-cross.sh i686-unknown-linux-gnu
               CARGO=cross yarn build --target i686-unknown-linux-gnu
-              strip *.node
+              yarn test
           - host: ubuntu-latest
             target: armv7-unknown-linux-gnueabihf
             setup: cargo install cross
@@ -59,11 +58,10 @@ jobs:
               sudo apt update && sudo apt install binutils-arm-linux-gnueabihf -y
               source configure-cross.sh armv7-unknown-linux-gnueabihf
               CARGO=cross yarn build --target armv7-unknown-linux-gnueabihf
-              arm-linux-gnueabihf-strip *.node
           - host: ubuntu-latest
             target: x86_64-unknown-linux-musl
             setup: cargo install cross
-            build: CARGO=cross yarn build:musl --target x86_64-unknown-linux-musl
+            build: CARGO=cross yarn build --target x86_64-unknown-linux-musl
           - host: macos-latest
             target: aarch64-apple-darwin
             build: |
@@ -82,14 +80,13 @@ jobs:
               sudo apt update && sudo apt install binutils-aarch64-linux-gnu -y
               source configure-cross.sh aarch64-unknown-linux-gnu
               CARGO=cross yarn build --target aarch64-unknown-linux-gnu
-              aarch64-linux-gnu-strip *.node
           - host: ubuntu-latest
             target: aarch64-unknown-linux-musl
             setup: cargo install cross
             build: |
               set -e
               source configure-cross.sh aarch64-unknown-linux-gnu
-              CARGO=cross yarn build:musl --target aarch64-unknown-linux-musl
+              CARGO=cross yarn build --target aarch64-unknown-linux-musl
           - host: windows-latest
             target: aarch64-pc-windows-msvc
             build: yarn build --target aarch64-pc-windows-msvc
