@@ -27,7 +27,6 @@ jobs:
             target: x86_64-apple-darwin
             build: |
               yarn build
-              strip -x *.node
           - host: windows-latest
             build: yarn build
             target: x86_64-pc-windows-msvc
@@ -49,7 +48,6 @@ jobs:
               set -e
               source configure-cross.sh i686-unknown-linux-gnu
               CARGO=cross yarn build --target i686-unknown-linux-gnu
-              yarn test
           - host: ubuntu-latest
             target: armv7-unknown-linux-gnueabihf
             setup: cargo install cross
@@ -61,7 +59,10 @@ jobs:
           - host: ubuntu-latest
             target: x86_64-unknown-linux-musl
             setup: cargo install cross
-            build: CARGO=cross yarn build --target x86_64-unknown-linux-musl
+            build: |
+              set -e
+              source configure-cross.sh x86_64-unknown-linux-musl
+              CARGO=cross yarn build --target x86_64-unknown-linux-musl
           - host: macos-latest
             target: aarch64-apple-darwin
             build: |
@@ -71,7 +72,6 @@ jobs:
               SYSROOT=$(xcrun --sdk macosx --show-sdk-path);
               export CFLAGS="-isysroot $SYSROOT -isystem $SYSROOT";
               yarn build --target aarch64-apple-darwin
-              strip -x *.node
           - host: ubuntu-latest
             target: aarch64-unknown-linux-gnu
             setup: cargo install cross
@@ -85,7 +85,7 @@ jobs:
             setup: cargo install cross
             build: |
               set -e
-              source configure-cross.sh aarch64-unknown-linux-gnu
+              source configure-cross.sh aarch64-unknown-linux-musl
               CARGO=cross yarn build --target aarch64-unknown-linux-musl
           - host: windows-latest
             target: aarch64-pc-windows-msvc

@@ -27,12 +27,19 @@ fn get_schema() -> libsecret::Schema {
   )
 }
 
+fn get_attribute_map<'a>(service: &'a str, account: &'a str) -> HashMap<&'a str, &'a str> {
+  HashMap::from([
+    ("service", service),
+    ("account", account),
+  ])
+}
+
 pub fn set_password(
   service: &String,
   account: &String,
   password: &String,
 ) -> Result<bool, KeytarError> {
-  let attributes = HashMap::from([("service", service.as_str()), ("account", account.as_str())]);
+  let attributes = get_attribute_map(service.as_str(), account.as_str());
 
   let collection = libsecret::COLLECTION_DEFAULT;
   match libsecret::password_store_sync(
@@ -49,7 +56,7 @@ pub fn set_password(
 }
 
 pub fn get_password(service: &String, account: &String) -> Result<Option<String>, KeytarError> {
-  let attributes = HashMap::from([("service", service.as_str()), ("account", account.as_str())]);
+  let attributes = get_attribute_map(service.as_str(), account.as_str());
 
   match libsecret::password_lookup_sync(Some(&get_schema()), attributes, gio::Cancellable::NONE) {
     Ok(pw) => match pw {
@@ -64,7 +71,7 @@ pub fn find_password(service: &String) -> Result<Option<String>, KeytarError> {
   let attributes = if service.contains("/") && service.len() > 1 {
     // In format "service/account"
     let values: Vec<&str> = service.split("/").collect();
-    HashMap::from([("service", values[0]), ("account", values[1])])
+    get_attribute_map(values[0], values[1])
   } else {
     HashMap::from([("service", service.as_str())])
   };
@@ -81,7 +88,7 @@ pub fn find_password(service: &String) -> Result<Option<String>, KeytarError> {
 pub fn delete_password(service: &String, account: &String) -> Result<bool, KeytarError> {
   match libsecret::password_clear_sync(
     Some(&get_schema()),
-    HashMap::from([("service", service.as_str()), ("account", account.as_str())]),
+    get_attribute_map(service.as_str(), account.as_str()),
     gio::Cancellable::NONE,
   ) {
     Ok(_) => Ok(true),

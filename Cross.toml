@@ -15,12 +15,10 @@ passthrough = [
 image = "ghcr.io/cross-rs/aarch64-unknown-linux-gnu:main"
 
 [target.aarch64-unknown-linux-musl]
-# needed because libsecret is not present in musl-specific dpkg arch
 pre-build = [
-    "dpkg --add-architecture arm64",
-    "apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y libsecret-1-dev:arm64",
+    "apk add libsecret-dev musl-dev",
 ]
-image = "ghcr.io/cross-rs/aarch64-unknown-linux-musl:main"
+image = "arm64v8/rust:alpine"
 
 [target.armv7-unknown-linux-gnueabihf]
 # needed to grab gcc (should be able to avoid using zig here, too)
@@ -47,7 +45,6 @@ image = "ghcr.io/cross-rs/x86_64-unknown-linux-gnu:main"
 
 [target.x86_64-unknown-linux-musl]
 pre-build = [
-    "apt-get update",
-    "DEBIAN_FRONTEND=noninteractive apt-get install libsecret-1-dev -y",
+    "apk add libsecret-dev musl-dev",
 ]
-image = "ghcr.io/cross-rs/x86_64-unknown-linux-musl:main"
+image = "amd64/rust:alpine"
