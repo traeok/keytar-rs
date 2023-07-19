@@ -37,31 +37,29 @@ jobs:
             target: i686-pc-windows-msvc
           - host: ubuntu-latest
             target: x86_64-unknown-linux-gnu
-            setup: cargo install cross
+            use-cross: true
             build: |
               set -e
               CARGO=cross yarn build --target x86_64-unknown-linux-gnu
           - host: ubuntu-latest
             target: i686-unknown-linux-gnu
-            setup: cargo install cross
+            use-cross: true
             build: |
               set -e
               source configure-cross.sh i686-unknown-linux-gnu
               CARGO=cross yarn build --target i686-unknown-linux-gnu
           - host: ubuntu-latest
             target: armv7-unknown-linux-gnueabihf
-            setup: cargo install cross
+            use-cross: true
             build: |
               set -e
-              sudo apt update && sudo apt install binutils-arm-linux-gnueabihf -y
               source configure-cross.sh armv7-unknown-linux-gnueabihf
               CARGO=cross yarn build --target armv7-unknown-linux-gnueabihf
           - host: ubuntu-latest
             target: x86_64-unknown-linux-musl
-            setup: cargo install cross
+            use-cross: true
             build: |
               set -e
-              source configure-cross.sh x86_64-unknown-linux-musl
               CARGO=cross yarn build --target x86_64-unknown-linux-musl
           - host: macos-latest
             target: aarch64-apple-darwin
@@ -74,23 +72,18 @@ jobs:
               yarn build --target aarch64-apple-darwin
           - host: ubuntu-latest
             target: aarch64-unknown-linux-gnu
-            setup: cargo install cross
+            use-cross: true
             build: |
               set -e
-              sudo apt update && sudo apt install binutils-aarch64-linux-gnu -y
               source configure-cross.sh aarch64-unknown-linux-gnu
               CARGO=cross yarn build --target aarch64-unknown-linux-gnu
           - host: ubuntu-latest
             target: aarch64-unknown-linux-musl
-            docker: ghcr.io/napi-rs/napi-rs/nodejs-rust:lts-alpine
+            use-cross: true
             build: |
               set -e
-              apk add pkgconfig
-              apk add --arch aarch64 -X "https://dl-cdn.alpinelinux.org/alpine/latest-stable/main/" --root /chroot --initdb --allow-untrusted --no-scripts libsecret-dev
-              rustup target add aarch64-unknown-linux-musl
-              export PKG_CONFIG_SYSROOT_DIR="/chroot" && export RUSTFLAGS="-L /chroot/usr/lib"
-              export PKG_CONFIG_PATH="/chroot/usr/lib/pkgconfig/"
-              yarn build --target aarch64-unknown-linux-musl
+              source configure-cross.sh aarch64-unknown-linux-musl
+              CARGO=cross yarn build --target aarch64-unknown-linux-musl
           - host: windows-latest
             target: aarch64-pc-windows-msvc
             build: yarn build --target aarch64-pc-windows-msvc
@@ -121,10 +114,8 @@ jobs:
             .cargo-cache
             target/
           key: ${{ matrix.settings.target }}-cargo-${{ matrix.settings.host }}
-      # - uses: goto-bus-stop/setup-zig@v2
-      #   if: ${{ matrix.settings.target == 'armv7-unknown-linux-gnueabihf' }}
-      #   with:
-      #     version: 0.10.1
+      - run: cargo install cross
+        if: ${{ matrix.settings.use-cross }}
       - name: Setup toolchain
         run: ${{ matrix.settings.setup }}
         if: ${{ matrix.settings.setup }}
