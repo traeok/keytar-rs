@@ -6,6 +6,16 @@
   "version": "0.0.0",
   "main": "index.js",
   "types": "index.d.ts",
+  "files": [
+    "prebuilds",
+    "scripts/*.js",
+    "src",
+    "build.rs",
+    "Cargo.lock",
+    "Cargo.toml",
+    "index.d.ts",
+    "index.js"
+  ],
   "napi": {
     "name": "keytar-rs",
     "triples": {
@@ -40,9 +50,9 @@
     "artifacts": "napi artifacts",
     "build": "napi build --platform --release",
     "build:debug": "napi build --platform",
+    "install": "node platformCheck.js || napi build --platform --release",
     "prepare": "napi build --platform --release",
-    "postinstall": "node -e \"if(!require('fs').existsSync('.git')) process.exit(1);\" || napi build --platform --release",
-    "prepublishOnly": "napi prepublish -t npm",
+    "prepublishOnly": "bash scripts/prebuildify.sh",
     "test": "ava",
     "version": "napi version"
   },
