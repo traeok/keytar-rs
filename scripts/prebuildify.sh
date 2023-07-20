@@ -2,8 +2,8 @@
 set -ex
 
 cd "$(git rev-parse --show-toplevel)"
-sed -i "s/join(__dirname, 'keytar-rs/join(__dirname, 'prebuilds', 'keytar-rs/g" index.js
-sed -i "s|require('./keytar-rs|require('./prebuilds/keytar-rs|g" index.js
+sed -i "s/join(__dirname, 'keyring/join(__dirname, 'prebuilds', 'keyring/g" index.js
+sed -i "s|require('./keyring|require('./prebuilds/keyring|g" index.js
 targets=("aarch64-apple-darwin"
          "aarch64-pc-windows-msvc"
          "aarch64-unknown-linux-gnu"

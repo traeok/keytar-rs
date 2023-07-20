@@ -1,5 +1,5 @@
 {
-    "name": "keytar-rs-linux-ia32-gnu",
+    "name": "keyring-linux-ia32-gnu",
     "version": "0.0.0",
     "os": [
         "linux"
@@ -7,9 +7,9 @@
     "cpu": [
         "ia32"
     ],
-    "main": "keytar-rs.linux-ia32-gnu.node",
+    "main": "keyring.linux-ia32-gnu.node",
     "files": [
-        "keytar-rs.linux-ia32-gnu.node"
+        "keyring.linux-ia32-gnu.node"
     ],
     "license": "MIT",
     "engines": {

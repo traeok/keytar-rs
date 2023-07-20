@@ -1,5 +1,5 @@
 {
-  "name": "keytar-rs-linux-arm64-gnu",
+  "name": "keyring-linux-arm64-gnu",
   "version": "0.0.0",
   "os": [
     "linux"
@@ -7,9 +7,9 @@
   "cpu": [
     "arm64"
   ],
-  "main": "keytar-rs.linux-arm64-gnu.node",
+  "main": "keyring.linux-arm64-gnu.node",
   "files": [
-    "keytar-rs.linux-arm64-gnu.node"
+    "keyring.linux-arm64-gnu.node"
   ],
   "license": "MIT",
   "engines": {

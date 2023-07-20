@@ -1,5 +1,5 @@
 {
-  "name": "@traeok/keytar-rs",
+  "name": "keyring",
   "description": "keytar meets Rust",
   "repository": "https://github.com/traeok/keytar-rs.git",
   "author": "traeok <trae.yelovich@broadcom.com>",
@@ -18,7 +18,7 @@
     "index.js"
   ],
   "napi": {
-    "name": "keytar-rs",
+    "name": "keyring",
     "triples": {
       "defaults": true,
       "additional": [

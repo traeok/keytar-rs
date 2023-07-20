@@ -1,5 +1,5 @@
 {
-  "name": "@traeok/keytar-rs-darwin-arm64",
+  "name": "keyring-darwin-arm64",
   "version": "0.0.0",
   "os": [
     "darwin"
@@ -7,9 +7,9 @@
   "cpu": [
     "arm64"
   ],
-  "main": "keytar-rs.darwin-arm64.node",
+  "main": "keyring.darwin-arm64.node",
   "files": [
-    "keytar-rs.darwin-arm64.node"
+    "keyring.darwin-arm64.node"
   ],
   "license": "MIT",
   "engines": {

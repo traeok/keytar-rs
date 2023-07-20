@@ -1,5 +1,5 @@
 {
-  "name": "@traeok/keytar-rs-linux-x64-gnu",
+  "name": "keyring-linux-x64-gnu",
   "version": "0.0.0",
   "os": [
     "linux"
@@ -7,9 +7,9 @@
   "cpu": [
     "x64"
   ],
-  "main": "keytar-rs.linux-x64-gnu.node",
+  "main": "keyring.linux-x64-gnu.node",
   "files": [
-    "keytar-rs.linux-x64-gnu.node"
+    "keyring.linux-x64-gnu.node"
   ],
   "license": "MIT",
   "engines": {

@@ -75,15 +75,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@traeok/keytar-rs@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "@traeok/keytar-rs@workspace:."
-  dependencies:
-    "@napi-rs/cli": ^2.16.2
-    ava: ^4.3.3
-  languageName: unknown
-  linkType: soft
-
 "abbrev@npm:^1.0.0":
   version: 1.1.1
   resolution: "abbrev@npm:1.1.1"
@@ -1158,6 +1149,15 @@ __metadata:
   checksum: bef146085f472d44dee30ec34e5cf36bf89164f5d585435a3d3da89e52622dff0b188a580e4ad091c3341889e14cb88cac6e4deb16dc5b1e9623bb0601fc255c
   languageName: node
   linkType: hard
+
+"keyring@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "keyring@workspace:."
+  dependencies:
+    "@napi-rs/cli": ^2.16.2
+    ava: ^4.3.3
+  languageName: unknown
+  linkType: soft
 
 "load-json-file@npm:^7.0.0":
   version: 7.0.1

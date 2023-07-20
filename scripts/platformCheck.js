@@ -23,5 +23,5 @@ function getTargetName() {
     }
 }
 
-const prebuildPath = path.join("prebuilds", `keytar-rs.${getTargetName()}.node`);
+const prebuildPath = path.join("prebuilds", `keyring.${getTargetName()}.node`);
 fs.accessSync(prebuildPath);

@@ -1,3 +1,3 @@
-# `keytar-rs-linux-arm64-gnu`
+# `keyring-linux-arm64-gnu`
 
-This is the **aarch64-unknown-linux-gnu** binary for `keytar-rs`
+This is the **aarch64-unknown-linux-gnu** binary for `keyring`

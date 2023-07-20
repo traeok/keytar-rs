@@ -1,5 +1,5 @@
 {
-  "name": "@traeok/keytar-rs-linux-s390x-gnu",
+  "name": "keyring-linux-s390x-gnu",
   "version": "0.0.0",
   "os": [
     "linux"
@@ -7,9 +7,9 @@
   "cpu": [
     "s390x"
   ],
-  "main": "keytar-rs.linux-s390x-gnu.node",
+  "main": "keyring.linux-s390x-gnu.node",
   "files": [
-    "keytar-rs.linux-s390x-gnu.node"
+    "keyring.linux-s390x-gnu.node"
   ],
   "license": "MIT",
   "engines": {

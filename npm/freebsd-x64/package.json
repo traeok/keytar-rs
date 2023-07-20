@@ -1,5 +1,5 @@
 {
-  "name": "keytar-rs-freebsd-x64",
+  "name": "keyring-freebsd-x64",
   "version": "0.0.0",
   "os": [
     "freebsd"
@@ -7,9 +7,9 @@
   "cpu": [
     "x64"
   ],
-  "main": "keytar-rs.freebsd-x64.node",
+  "main": "keyring.freebsd-x64.node",
   "files": [
-    "keytar-rs.freebsd-x64.node"
+    "keyring.freebsd-x64.node"
   ],
   "license": "MIT",
   "engines": {

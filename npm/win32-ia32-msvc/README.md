@@ -1,3 +1,3 @@
-# `keytar-rs-win32-ia32-msvc`
+# `keyring-win32-ia32-msvc`
 
-This is the **i686-pc-windows-msvc** binary for `keytar-rs`
+This is the **i686-pc-windows-msvc** binary for `keyring`

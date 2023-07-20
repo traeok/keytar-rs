@@ -270,6 +270,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "keyring"
+version = "0.0.0"
+dependencies = [
+ "cfg-if",
+ "gio",
+ "glib",
+ "libsecret",
+ "libsecret-sys",
+ "napi",
+ "napi-build",
+ "napi-derive",
+ "security-framework",
+ "thiserror",
+ "windows-sys",
+]
+
+[[package]]
 name = "libc"
 version = "0.2.147"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -633,23 +650,6 @@ dependencies = [
  "serde_spanned",
  "toml_datetime",
  "winnow",
-]
-
-[[package]]
-name = "traeok_keytar-rs"
-version = "0.0.0"
-dependencies = [
- "cfg-if",
- "gio",
- "glib",
- "libsecret",
- "libsecret-sys",
- "napi",
- "napi-build",
- "napi-derive",
- "security-framework",
- "thiserror",
- "windows-sys",
 ]
 
 [[package]]

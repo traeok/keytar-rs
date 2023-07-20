@@ -1,3 +1,3 @@
-# `keytar-rs-linux-arm64-musl`
+# `keyring-linux-arm64-musl`
 
-This is the **aarch64-unknown-linux-musl** binary for `keytar-rs`
+This is the **aarch64-unknown-linux-musl** binary for `keyring`

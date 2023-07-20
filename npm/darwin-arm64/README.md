@@ -1,3 +1,3 @@
-# `@traeok/keytar-rs-darwin-arm64`
+# `keyring-darwin-arm64`
 
-This is the **aarch64-apple-darwin** binary for `@traeok/keytar-rs`
+This is the **aarch64-apple-darwin** binary for `keyring`

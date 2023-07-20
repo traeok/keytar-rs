@@ -1,8 +1,8 @@
-# keytar-rs
+# keyring
 
-keytar-rs is a native Node.js module for accessing and managing OS credential storage. It is a Rust approach to the npm library [node-keytar](https://github.com/atom/node-keytar).
+keyring is a native Node.js module for accessing and managing OS credential storage.
 
-![keytar-rs demo](./DEMO.svg)
+![keyring demo](./DEMO.svg)
 
 ## Compatibility
 
@@ -113,14 +113,14 @@ keytar-rs is a native Node.js module for accessing and managing OS credential st
 
 ## Features
 
-keytar-rs supports the following operations within credential storage:
+keyring supports the following operations within credential storage:
 
 - [x] **Set** a credential
 - [x] **Retrieve** a credential
 - [x] **Find all credentials** with matching attributes
 - [x] **Find a password** with matching attributes
 
-Some benefits to using keytar-rs:
+Some benefits to using keyring:
 
 - [x] **Cross-platform support** makes for straight-forward secrets management
 - [x] **Existing OS credentials are supported** out-of-the-box

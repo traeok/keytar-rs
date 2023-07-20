@@ -1,3 +1,3 @@
-# `keytar-rs-linux-arm-gnueabihf`
+# `keyring-linux-arm-gnueabihf`
 
-This is the **armv7-unknown-linux-gnueabihf** binary for `keytar-rs`
+This is the **armv7-unknown-linux-gnueabihf** binary for `keyring`

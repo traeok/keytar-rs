@@ -1,5 +1,5 @@
 {
-  "name": "keytar-rs-win32-arm64-msvc",
+  "name": "keyring-win32-arm64-msvc",
   "version": "0.0.0",
   "os": [
     "win32"
@@ -7,9 +7,9 @@
   "cpu": [
     "arm64"
   ],
-  "main": "keytar-rs.win32-arm64-msvc.node",
+  "main": "keyring.win32-arm64-msvc.node",
   "files": [
-    "keytar-rs.win32-arm64-msvc.node"
+    "keyring.win32-arm64-msvc.node"
   ],
   "license": "MIT",
   "engines": {

@@ -1,5 +1,5 @@
 {
-  "name": "keytar-rs-linux-x64-musl",
+  "name": "keyring-linux-x64-musl",
   "version": "0.0.0",
   "os": [
     "linux"
@@ -7,9 +7,9 @@
   "cpu": [
     "x64"
   ],
-  "main": "keytar-rs.linux-x64-musl.node",
+  "main": "keyring.linux-x64-musl.node",
   "files": [
-    "keytar-rs.linux-x64-musl.node"
+    "keyring.linux-x64-musl.node"
   ],
   "license": "MIT",
   "engines": {

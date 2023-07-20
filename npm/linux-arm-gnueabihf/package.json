@@ -1,5 +1,5 @@
 {
-  "name": "keytar-rs-linux-arm-gnueabihf",
+  "name": "keyring-linux-arm-gnueabihf",
   "version": "0.0.0",
   "os": [
     "linux"
@@ -7,9 +7,9 @@
   "cpu": [
     "arm"
   ],
-  "main": "keytar-rs.linux-arm-gnueabihf.node",
+  "main": "keyring.linux-arm-gnueabihf.node",
   "files": [
-    "keytar-rs.linux-arm-gnueabihf.node"
+    "keyring.linux-arm-gnueabihf.node"
   ],
   "license": "MIT",
   "engines": {

@@ -1,3 +1,3 @@
-# `keytar-rs-win32-arm64-msvc`
+# `keyring-win32-arm64-msvc`
 
-This is the **aarch64-pc-windows-msvc** binary for `keytar-rs`
+This is the **aarch64-pc-windows-msvc** binary for `keyring`
