@@ -3,8 +3,6 @@ const path = require("path");
 
 function getTargetName() {
     switch (process.platform) {
-        case "darwin":
-            return `darwin-${process.arch}`;
         case "linux":
             const isMusl = process.report.getReport().header.glibcVersionRuntime == null;
             switch (process.arch) {
@@ -17,8 +15,11 @@ function getTargetName() {
                 case "x64":
                     return `linux-x64-${isMusl ? "musl" : "gnu"}`;
             }
-        case "windows":
+        case "win32":
             return `win32-${process.arch}-msvc`;
+        case "darwin":
+        default:
+            return `${process.platform}-${process.arch}`;
     }
 }
 
